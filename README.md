@@ -1,2 +1,2 @@
-# sysctl
+# digsigctl
 Digital signage system controller
