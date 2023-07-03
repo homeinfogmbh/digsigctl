@@ -8,7 +8,10 @@ use std::process::exit;
 #[post("/configure", format = "application/json", data = "<config>")]
 #[allow(clippy::needless_pass_by_value)]
 fn configure(config: Json<Config>) -> String {
-    config.url().to_string()
+    match config.apply() {
+        Ok(_) => "Configuration applied.".to_string(),
+        Err(error) => error.to_string(),
+    }
 }
 
 #[get("/sysinfo", format = "application/json")]
