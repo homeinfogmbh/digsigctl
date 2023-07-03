@@ -4,6 +4,7 @@ use std::error::Error;
 use std::fmt::{Display, Formatter};
 use std::net::{IpAddr, Ipv6Addr};
 
+pub const PORT: u16 = 5000;
 const VPN: (Ipv6Addr, u8) = (
     Ipv6Addr::new(0xfd56, 0x1dda, 0x8794, 0xcb90, 0, 0, 0, 0),
     64,

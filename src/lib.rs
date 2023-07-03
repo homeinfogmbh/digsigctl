@@ -1,6 +1,6 @@
 mod net;
 
-use crate::net::{discover_address, VpnDiscoveryError};
+use crate::net::{discover_address, VpnDiscoveryError, PORT};
 use rocket::{figment::Figment, Config};
 
 /// Returns a custom config for Rocket
@@ -9,7 +9,7 @@ use rocket::{figment::Figment, Config};
 pub fn get_config() -> Result<Figment, VpnDiscoveryError> {
     discover_address().map(|address| {
         Config::figment()
-            .merge(("port", 5000))
+            .merge(("port", PORT))
             .merge(("address", address))
     })
 }
