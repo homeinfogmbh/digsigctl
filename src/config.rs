@@ -1,13 +1,12 @@
 use serde::{Deserialize, Serialize};
-use std::error::Error;
 use std::fmt::{Display, Formatter};
 
 #[derive(Debug, Eq, PartialEq)]
-pub enum ConfigError {
+pub enum Error {
     ConfigurationFailed,
 }
 
-impl Display for ConfigError {
+impl Display for Error {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::ConfigurationFailed => write!(f, "configuration failed"),
@@ -15,7 +14,7 @@ impl Display for ConfigError {
     }
 }
 
-impl Error for ConfigError {}
+impl std::error::Error for Error {}
 
 #[derive(Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct Config {
@@ -28,7 +27,7 @@ impl Config {
         self.url.as_str()
     }
 
-    pub fn apply(&self) -> Result<(), ConfigError> {
+    pub fn apply(&self) -> Result<(), Error> {
         Ok(())
     }
 }
