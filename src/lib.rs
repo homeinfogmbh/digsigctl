@@ -1,8 +1,10 @@
 mod config;
 mod net;
+mod sysinfo;
 
 use crate::net::{discover_address, VpnDiscoveryError, PORT};
 pub use config::Config;
+pub use sysinfo::SystemInformation;
 
 /// Returns a custom config for Rocket
 /// # Errors

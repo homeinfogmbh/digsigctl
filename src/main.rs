@@ -1,6 +1,6 @@
 #![allow(clippy::let_underscore_untyped, clippy::no_effect_underscore_binding)]
 
-use digsigctl::{get_config, Config};
+use digsigctl::{get_config, Config, SystemInformation};
 use rocket::serde::json::Json;
 use rocket::{get, launch, post, routes, Build, Rocket};
 use std::process::exit;
@@ -15,8 +15,8 @@ fn configure(config: Json<Config>) -> String {
 }
 
 #[get("/sysinfo", format = "application/json")]
-fn sysinfo() -> String {
-    "Hello world.".into()
+fn sysinfo() -> Json<SystemInformation> {
+    Json(SystemInformation::gather())
 }
 
 #[launch]
