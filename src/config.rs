@@ -28,6 +28,6 @@ impl Config {
     }
 
     pub fn apply(&self) -> Result<(), Error> {
-        Ok(())
+        todo!("Where do we store the URL on the system?")
     }
 }
