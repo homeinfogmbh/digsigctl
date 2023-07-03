@@ -6,6 +6,7 @@ pub struct SystemInformation {
 }
 
 impl SystemInformation {
+    #[must_use]
     pub fn gather() -> Self {
         Self {
             cmdline: procfs::cmdline().ok(),
