@@ -5,8 +5,8 @@ use rocket::serde::json::Json;
 use rocket::{get, launch, post, routes, Build, Rocket};
 use std::process::exit;
 
-#[post("/configure", format = "application/json", data = "<config>")]
 #[allow(clippy::needless_pass_by_value)]
+#[post("/configure", format = "application/json", data = "<config>")]
 fn configure(config: Json<Config>) -> String {
     match config.apply() {
         Ok(_) => "Configuration applied.".to_string(),
