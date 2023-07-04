@@ -27,6 +27,9 @@ impl Config {
         self.url.as_str()
     }
 
+    /// Applies the configuration to the system
+    /// # Errors
+    /// Returns an [`digsigctl::config::Error`] if the configuration could not be applied
     pub fn apply(&self) -> Result<(), Error> {
         todo!("Where do we store the URL on the system?")
     }

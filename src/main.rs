@@ -1,7 +1,7 @@
 #![allow(clippy::let_underscore_untyped, clippy::no_effect_underscore_binding)]
 
 use clap::Parser;
-use digsigctl::{discover_address, Config, SystemInformation};
+use digsigctl::{discover_address, Command, CommandResult, Config, SystemInformation};
 use pnet::ipnetwork::IpNetwork;
 use rocket::serde::json::Json;
 use rocket::{get, launch, post, routes, Build, Rocket};
@@ -37,7 +37,7 @@ fn rocket() -> Rocket<Build> {
             }),
         )),
     )
-    .mount("/", routes![configure, sysinfo])
+    .mount("/", routes![configure, sysinfo, rpc])
 }
 
 #[allow(clippy::needless_pass_by_value)]
@@ -52,4 +52,10 @@ fn configure(config: Json<Config>) -> String {
 #[get("/sysinfo", format = "application/json")]
 fn sysinfo() -> Json<SystemInformation> {
     Json(SystemInformation::gather())
+}
+
+#[allow(clippy::needless_pass_by_value)]
+#[post("/rpc", format = "application/json", data = "<command>")]
+fn rpc(command: Json<Command>) -> Json<CommandResult> {
+    Json(command.run())
 }
