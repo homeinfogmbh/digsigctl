@@ -20,7 +20,7 @@ impl SystemInformation {
     pub fn gather() -> Self {
         Self {
             cmd_line: cmdline().ok(),
-            cpu_info: CpuInfo::new().ok(),
+            cpu_info: CpuInfo::read().ok(),
             mem_info: meminfo().ok(),
         }
     }
