@@ -11,25 +11,20 @@ const BAY_TRAIL_CPUS: [&str; 46] = [
 
 #[derive(Debug)]
 pub struct CpuInfo {
-    cpu_info: procfs::CpuInfo,
+    cpu_info: proc_cpuinfo::CpuInfo,
 }
 
 impl CpuInfo {
-    pub fn new() -> Result<Self, procfs::ProcError> {
+    pub fn new() -> Result<Self, std::io::Error> {
         Ok(Self {
-            cpu_info: procfs::CpuInfo::new()?,
+            cpu_info: proc_cpuinfo::CpuInfo::read()?,
         })
     }
 
-    pub fn flags(&self) -> Option<Vec<String>> {
-        self.cpu_info
-            .flags(0)
-            .map(|flags| flags.iter().map(ToString::to_string).collect())
-    }
-
     pub fn is_bay_trail(&self) -> bool {
-        (0..self.cpu_info.num_cores())
-            .filter_map(|core| self.cpu_info.model_name(core))
+        self.cpu_info
+            .cpus()
+            .filter_map(|cpu| cpu.model_name().map(ToString::to_string))
             .any(|model_name| {
                 BAY_TRAIL_CPUS
                     .iter()
@@ -45,8 +40,10 @@ impl Serialize for CpuInfo {
     {
         let mut state = serializer.serialize_struct("CpuInfo", 3)?;
 
-        if let Some(flags) = self.flags() {
-            state.serialize_field("flags", &flags)?;
+        if let Some(cpu) = self.cpu_info.cpus().next() {
+            if let Some(model_name) = cpu.model_name() {
+                state.serialize_field("model_name", model_name)?;
+            }
         }
 
         state.serialize_field("is_bay_trail", &self.is_bay_trail())?;

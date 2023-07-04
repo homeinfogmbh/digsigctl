@@ -1,12 +1,14 @@
+mod cmdline;
 mod cpu_info;
 
 use crate::sysinfo::cpu_info::CpuInfo;
-use procfs::cmdline;
+use cmdline::cmdline;
 use serde::Serialize;
+use std::collections::HashMap;
 
 #[derive(Debug, Serialize)]
 pub struct SystemInformation {
-    cmdline: Option<Vec<String>>,
+    cmdline: Option<HashMap<String, Option<String>>>,
     cpu_info: Option<CpuInfo>,
 }
 
