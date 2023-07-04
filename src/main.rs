@@ -1,9 +1,44 @@
 #![allow(clippy::let_underscore_untyped, clippy::no_effect_underscore_binding)]
 
-use digsigctl::{get_config, Config, SystemInformation};
+use clap::Parser;
+use digsigctl::{discover_address, Config, SystemInformation};
+use pnet::ipnetwork::IpNetwork;
 use rocket::serde::json::Json;
 use rocket::{get, launch, post, routes, Build, Rocket};
 use std::process::exit;
+use std::str::FromStr;
+
+#[derive(Parser)]
+#[clap(about, author, version)]
+struct Args {
+    #[clap(short, long)]
+    network: String,
+
+    #[clap(short, long)]
+    port: u16,
+}
+
+#[launch]
+fn rocket() -> Rocket<Build> {
+    let args = Args::parse();
+
+    rocket::custom(
+        rocket::Config::figment().merge(("port", args.port)).merge((
+            "address",
+            discover_address(
+                IpNetwork::from_str(args.network.as_str()).unwrap_or_else(|error| {
+                    eprintln!("{error}");
+                    exit(1)
+                }),
+            )
+            .unwrap_or_else(|| {
+                eprintln!("No address found");
+                exit(2);
+            }),
+        )),
+    )
+    .mount("/", routes![configure, sysinfo])
+}
 
 #[allow(clippy::needless_pass_by_value)]
 #[post("/configure", format = "application/json", data = "<config>")]
@@ -17,15 +52,4 @@ fn configure(config: Json<Config>) -> String {
 #[get("/sysinfo", format = "application/json")]
 fn sysinfo() -> Json<SystemInformation> {
     Json(SystemInformation::gather())
-}
-
-#[launch]
-fn rocket() -> Rocket<Build> {
-    match get_config() {
-        Ok(config) => rocket::custom(config).mount("/", routes![configure, sysinfo]),
-        Err(error) => {
-            eprintln!("{error}");
-            exit(1);
-        }
-    }
 }
