@@ -11,10 +11,10 @@ use std::str::FromStr;
 #[derive(Parser)]
 #[clap(about, author, version)]
 struct Args {
-    #[clap(short, long)]
+    #[clap(short, long, default_value = "fd56:1dda:8794:cb90::/64")]
     network: String,
 
-    #[clap(short, long)]
+    #[clap(short, long, default_value_t = 5000)]
     port: u16,
 }
 
