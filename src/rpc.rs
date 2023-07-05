@@ -24,14 +24,10 @@ impl Command {
     #[must_use]
     pub fn run(&self) -> CommandResult {
         match self {
-            Self::Beep(melody) => melody
-                .as_ref()
-                .unwrap_or(&Melody::default())
-                .play()
-                .map_or_else(
-                    |error| CommandResult::Error(Some(error.to_string()), None),
-                    |_| CommandResult::Success(None),
-                ),
+            Self::Beep(melody) => melody.clone().unwrap_or_default().play().map_or_else(
+                |error| CommandResult::Error(Some(error.to_string()), None),
+                |_| CommandResult::Success(None),
+            ),
             Self::Reboot => reboot(),
         }
     }
