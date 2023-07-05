@@ -25,6 +25,17 @@ pub enum Command {
     Identify,
 }
 
+impl Command {
+    #[must_use]
+    pub fn run(&self) -> Result {
+        match self {
+            Self::Beep(melody) => beep(melody.as_ref().cloned()),
+            Self::Reboot(delay) => reboot(*delay),
+            Self::Identify => identify(),
+        }
+    }
+}
+
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum Result {
     Success(Option<String>),
@@ -54,16 +65,5 @@ impl<'r, 'o: 'r> Responder<'r, 'o> for Result {
             .status(status)
             .sized_body(json.len(), Cursor::new(json))
             .ok()
-    }
-}
-
-impl Command {
-    #[must_use]
-    pub fn run(&self) -> Result {
-        match self {
-            Self::Beep(melody) => beep(melody.as_ref().cloned()),
-            Self::Reboot(delay) => reboot(*delay),
-            Self::Identify => identify(),
-        }
     }
 }
