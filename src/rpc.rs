@@ -1,8 +1,10 @@
 mod beep;
+mod error;
 mod identify;
 mod reboot;
 
 use crate::rpc::beep::beep;
+use crate::rpc::error::Errors;
 use crate::rpc::identify::identify;
 use crate::rpc::reboot::reboot;
 use beep_evdev::Melody;
@@ -24,7 +26,7 @@ pub enum Result {
     #[serde(rename = "success")]
     Success(Option<String>),
     #[serde(rename = "error")]
-    Error(String),
+    Error(Errors),
 }
 
 impl Command {

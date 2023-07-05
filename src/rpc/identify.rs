@@ -6,11 +6,16 @@ pub fn identify() -> RpcResult {
     let visual_result = identify_visually();
 
     match (acoustic_result, visual_result) {
-        (Err(acoustic_error), Err(visual_error)) => {
-            RpcResult::Error(format!("{acoustic_error} + {visual_error}"))
-        }
-        (Err(acoustic_error), _) => RpcResult::Error(format!("{acoustic_error}")),
-        (_, Err(visual_error)) => RpcResult::Error(format!("{visual_error}")),
+        (Err(acoustic_error), Err(visual_error)) => RpcResult::Error(
+            [
+                acoustic_error.to_string().into(),
+                visual_error.to_string().into(),
+            ]
+            .as_slice()
+            .into(),
+        ),
+        (Err(acoustic_error), _) => RpcResult::Error(acoustic_error.to_string().into()),
+        (_, Err(visual_error)) => RpcResult::Error(visual_error.to_string().into()),
         _ => RpcResult::Success(None),
     }
 }
