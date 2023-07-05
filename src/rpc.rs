@@ -29,7 +29,7 @@ impl Command {
                 |error| Result::Error(error.to_string()),
                 |_| Result::Success(None),
             ),
-            Self::Reboot(delay) => reboot(delay.clone()),
+            Self::Reboot(delay) => reboot(*delay),
         }
     }
 }
