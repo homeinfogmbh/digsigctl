@@ -12,3 +12,4 @@ pnet = "0.33.0"
 proc-cpuinfo = "0.1.2"
 rocket = { version = "0.5.0-rc.3", features = ["json"] }
 serde = { version = "1.0.164", features = ["derive"] }
+system_shutdown = "4.0.1"

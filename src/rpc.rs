@@ -10,7 +10,7 @@ pub enum Command {
     #[serde(rename = "beep")]
     Beep(Option<Melody>),
     #[serde(rename = "reboot")]
-    Reboot,
+    Reboot(Option<u64>),
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize)]
@@ -29,7 +29,7 @@ impl Command {
                 |error| Result::Error(error.to_string()),
                 |_| Result::Success(None),
             ),
-            Self::Reboot => reboot(),
+            Self::Reboot(delay) => reboot(delay.clone()),
         }
     }
 }
