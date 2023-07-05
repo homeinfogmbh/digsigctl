@@ -1,7 +1,9 @@
 mod beep;
+mod identify;
 mod reboot;
 
 use crate::rpc::beep::beep;
+use crate::rpc::identify::identify;
 use crate::rpc::reboot::reboot;
 use beep_evdev::Melody;
 use serde::{Deserialize, Serialize};
@@ -13,6 +15,8 @@ pub enum Command {
     Beep(Option<Melody>),
     #[serde(rename = "reboot")]
     Reboot(Option<u64>),
+    #[serde(rename = "identify")]
+    Identify,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize)]
@@ -29,6 +33,7 @@ impl Command {
         match self {
             Self::Beep(melody) => beep(melody.as_ref().cloned()),
             Self::Reboot(delay) => reboot(*delay),
+            Self::Identify => identify(),
         }
     }
 }
