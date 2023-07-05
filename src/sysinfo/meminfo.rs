@@ -15,7 +15,7 @@ pub fn meminfo() -> Result<HashMap<String, usize>, std::io::Error> {
                     value.trim().parse::<usize>().ok().map(|value| {
                         value
                             * match unit.trim() {
-                                "kB" => 1000,
+                                "kB" => 1024,
                                 unit => panic!("Unknown unit: {unit}"),
                             }
                     })
