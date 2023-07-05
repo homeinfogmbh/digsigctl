@@ -1,7 +1,7 @@
 #![allow(clippy::let_underscore_untyped, clippy::no_effect_underscore_binding)]
 
 use clap::Parser;
-use digsigctl::{discover_address, Command, CommandResult, Config, SystemInformation};
+use digsigctl::{discover_address, Command, Config, Result, SystemInformation};
 use pnet::ipnetwork::IpNetwork;
 use rocket::serde::json::Json;
 use rocket::{get, launch, post, routes, Build, Rocket};
@@ -56,6 +56,6 @@ fn sysinfo() -> Json<SystemInformation> {
 
 #[allow(clippy::needless_pass_by_value)]
 #[post("/rpc", format = "application/json", data = "<command>")]
-fn rpc(command: Json<Command>) -> Json<CommandResult> {
+fn rpc(command: Json<Command>) -> Json<Result> {
     Json(command.run())
 }

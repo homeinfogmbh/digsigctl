@@ -1,6 +1,6 @@
-use crate::rpc::CommandResult;
+use crate::rpc::Result;
 
-pub fn reboot() -> CommandResult {
+pub fn reboot() -> Result {
     // TODO: implement
-    CommandResult::Success(None)
+    Result::Success(None)
 }
