@@ -1,14 +1,13 @@
-mod beep;
 mod reboot;
 
-use crate::rpc::beep::{beep, Args};
 use crate::rpc::reboot::reboot;
+use beep_evdev::Melody;
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub enum Command {
     #[serde(rename = "beep")]
-    Beep(Option<Args>),
+    Beep(Option<Melody>),
     #[serde(rename = "reboot")]
     Reboot,
 }
@@ -25,7 +24,14 @@ impl Command {
     #[must_use]
     pub fn run(&self) -> CommandResult {
         match self {
-            Self::Beep(args) => beep(args.as_ref().unwrap_or(&Args::default())),
+            Self::Beep(melody) => melody
+                .as_ref()
+                .unwrap_or(&Melody::default())
+                .play()
+                .map_or_else(
+                    |error| CommandResult::Error(Some(error.to_string()), None),
+                    |_| CommandResult::Success(None),
+                ),
             Self::Reboot => reboot(),
         }
     }
