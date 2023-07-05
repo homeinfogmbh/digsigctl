@@ -8,8 +8,12 @@ use crate::rpc::error::Errors;
 use crate::rpc::identify::identify;
 use crate::rpc::reboot::reboot;
 use beep_evdev::Melody;
-use serde::{Deserialize, Serialize};
+use rocket::http::{ContentType, Status};
+use rocket::response::Responder;
+use rocket::{Request, Response};
+use serde::Deserialize;
 use std::fmt::Debug;
+use std::io::Cursor;
 
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq)]
 pub enum Command {
@@ -21,12 +25,36 @@ pub enum Command {
     Identify,
 }
 
-#[derive(Clone, Debug, Eq, PartialEq, Serialize)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub enum Result {
-    #[serde(rename = "success")]
     Success(Option<String>),
-    #[serde(rename = "error")]
     Error(Errors),
+}
+
+impl<'r, 'o: 'r> Responder<'r, 'o> for Result {
+    fn respond_to(self, _: &'r Request<'_>) -> rocket::response::Result<'o> {
+        let json;
+        let status;
+
+        match self {
+            Self::Success(message) => {
+                json = rocket::serde::json::to_string(&message)
+                    .map_err(|_| Status::InternalServerError)?;
+                status = Status::Accepted;
+            }
+            Self::Error(errors) => {
+                json = rocket::serde::json::to_string(errors.errors())
+                    .map_err(|_| Status::InternalServerError)?;
+                status = errors.status();
+            }
+        }
+
+        Response::build()
+            .header(ContentType::JSON)
+            .status(status)
+            .sized_body(json.len(), Cursor::new(json))
+            .ok()
+    }
 }
 
 impl Command {

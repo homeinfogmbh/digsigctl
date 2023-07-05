@@ -56,6 +56,6 @@ fn sysinfo() -> Json<SystemInformation> {
 
 #[allow(clippy::needless_pass_by_value)]
 #[post("/rpc", format = "application/json", data = "<command>")]
-fn rpc(command: Json<Command>) -> Json<Result> {
-    Json(command.run())
+fn rpc(command: Json<Command>) -> Result {
+    command.run()
 }

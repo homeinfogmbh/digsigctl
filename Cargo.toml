@@ -9,6 +9,7 @@ edition = "2021"
 beep-evdev = { version = "0.1.2", features = ["serde"] }
 clap = { version = "4.3.10", features = ["derive"] }
 configparser = "3.0.2"
+either = "1.8.1"
 pnet = "0.33.0"
 proc-cpuinfo = "0.1.2"
 rocket = { version = "0.5.0-rc.3", features = ["json"] }

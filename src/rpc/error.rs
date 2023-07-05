@@ -1,17 +1,26 @@
+use rocket::http::Status;
 use serde::Serialize;
 
-#[derive(Clone, Debug, Default, Eq, PartialEq, Serialize)]
+#[derive(Clone, Debug, Default, Eq, PartialEq)]
 pub struct Errors {
     errors: Vec<Error>,
-    status_code: Option<u16>,
+    status: Status,
 }
 
 impl Errors {
-    pub fn new(errors: Vec<Error>, status_code: Option<u16>) -> Self {
+    pub fn new(errors: Vec<Error>, status: Option<Status>) -> Self {
         Self {
             errors,
-            status_code,
+            status: status.unwrap_or(Status::BadRequest),
         }
+    }
+
+    pub fn errors(&self) -> &Vec<Error> {
+        self.errors.as_ref()
+    }
+
+    pub const fn status(&self) -> Status {
+        self.status
     }
 }
 
@@ -21,9 +30,9 @@ impl From<Error> for Errors {
     }
 }
 
-impl From<(Error, u16)> for Errors {
-    fn from((error, status_code): (Error, u16)) -> Self {
-        Self::new(vec![error], Some(status_code))
+impl From<(Error, Status)> for Errors {
+    fn from((error, status): (Error, Status)) -> Self {
+        Self::new(vec![error], Some(status))
     }
 }
 
@@ -33,9 +42,9 @@ impl From<&[Error]> for Errors {
     }
 }
 
-impl From<(&[Error], u16)> for Errors {
-    fn from((errors, status_code): (&[Error], u16)) -> Self {
-        Self::new(Vec::from(errors), Some(status_code))
+impl From<(&[Error], Status)> for Errors {
+    fn from((errors, status): (&[Error], Status)) -> Self {
+        Self::new(Vec::from(errors), Some(status))
     }
 }
 
@@ -69,6 +78,18 @@ impl Error {
             details,
             exit_code,
         }
+    }
+
+    pub fn message(&self) -> Option<&str> {
+        self.message.as_deref()
+    }
+
+    pub fn details(&self) -> Option<&str> {
+        self.details.as_deref()
+    }
+
+    pub const fn exit_code(&self) -> Option<u32> {
+        self.exit_code
     }
 }
 
