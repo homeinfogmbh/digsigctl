@@ -1,5 +1,7 @@
+mod beep;
 mod reboot;
 
+use crate::rpc::beep::beep;
 use crate::rpc::reboot::reboot;
 use beep_evdev::Melody;
 use serde::{Deserialize, Serialize};
@@ -25,10 +27,7 @@ impl Command {
     #[must_use]
     pub fn run(&self) -> Result {
         match self {
-            Self::Beep(melody) => melody.clone().unwrap_or_default().play().map_or_else(
-                |error| Result::Error(error.to_string()),
-                |_| Result::Success(None),
-            ),
+            Self::Beep(melody) => beep(melody.as_ref().cloned()),
             Self::Reboot(delay) => reboot(*delay),
         }
     }
