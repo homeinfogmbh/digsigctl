@@ -17,8 +17,6 @@ impl Display for Error {
     }
 }
 
-impl std::error::Error for Error {}
-
 #[derive(Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct Config {
     url: String,
