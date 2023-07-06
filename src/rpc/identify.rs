@@ -1,8 +1,8 @@
-use crate::gui::show;
+use crate::create;
 use crate::rpc::Result as RpcResult;
 use beep_evdev::Melody;
+use gtk4::prelude::ApplicationExtManual;
 use std::fs::read_to_string;
-use std::thread;
 
 const HOSTNAME: &str = "/etc/hostname";
 
@@ -26,7 +26,6 @@ pub fn identify() -> RpcResult {
 }
 
 fn identify_visually() -> Result<(), std::io::Error> {
-    let hostname = read_to_string(HOSTNAME)?;
-    thread::spawn(|| show(hostname));
+    create(read_to_string(HOSTNAME)?).run_with_args::<&str>(&[]);
     Ok(())
 }

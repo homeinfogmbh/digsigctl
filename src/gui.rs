@@ -6,7 +6,8 @@ use gtk4::{Align, Button};
 
 const TIMEOUT_SECONDS: u32 = 15;
 
-pub fn show(title: String) {
+#[must_use]
+pub fn create(title: String) -> Application {
     let application = Application::builder()
         .application_id("de.homeinfo.digsigctl")
         .build();
@@ -25,7 +26,7 @@ pub fn show(title: String) {
         window.show();
     });
 
-    application.run_with_args::<&str>(&[]);
+    application
 }
 
 fn add_close_button(window: &ApplicationWindow) {
@@ -43,7 +44,7 @@ fn make_window_close_channel(window: ApplicationWindow) {
         sender.send(window).expect("Could not send through channel");
     }));
 
-    receiver.attach(None, move |window: ApplicationWindow| {
+    receiver.attach(None, move |window| {
         window.close();
         Continue(true)
     });
