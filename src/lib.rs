@@ -1,4 +1,5 @@
 mod config;
+mod gui;
 mod net;
 mod rpc;
 mod sysinfo;
