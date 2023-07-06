@@ -1,5 +1,6 @@
 use rocket::http::Status;
 use serde::Serialize;
+use std::ops::Add;
 
 #[derive(Clone, Debug, Default, Eq, PartialEq)]
 pub struct Errors {
@@ -21,6 +22,17 @@ impl Errors {
 
     pub const fn status(&self) -> Status {
         self.status
+    }
+}
+
+impl Add for Errors {
+    type Output = Self;
+
+    fn add(self, rhs: Self) -> Self::Output {
+        let mut errors = Vec::new();
+        errors.extend(self.errors.into_iter());
+        errors.extend(rhs.errors.into_iter());
+        Self::new(errors, Some(self.status))
     }
 }
 

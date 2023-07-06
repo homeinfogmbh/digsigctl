@@ -14,6 +14,8 @@ use rocket::{Request, Response};
 use serde::Deserialize;
 use std::fmt::Debug;
 use std::io::Cursor;
+use std::ops::Add;
+use std::sync::mpsc::SyncSender;
 
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq)]
 pub enum Command {
@@ -27,11 +29,11 @@ pub enum Command {
 
 impl Command {
     #[must_use]
-    pub fn run(&self) -> Result {
+    pub fn run(&self, sender: &SyncSender<String>) -> Result {
         match self {
             Self::Beep(melody) => beep(melody.as_ref().cloned()),
             Self::Reboot(delay) => reboot(*delay),
-            Self::Identify => identify(),
+            Self::Identify => identify(sender),
         }
     }
 }
@@ -40,6 +42,19 @@ impl Command {
 pub enum Result {
     Success(Option<String>),
     Error(Errors),
+}
+
+impl Add for Result {
+    type Output = Self;
+
+    fn add(self, rhs: Self) -> Self::Output {
+        match (self, rhs) {
+            (Self::Error(lhs), Self::Error(rhs)) => Self::Error(lhs + rhs),
+            (Self::Error(lhs), _) => Self::Error(lhs),
+            (_, Self::Error(rhs)) => Self::Error(rhs),
+            _ => Self::Success(None),
+        }
+    }
 }
 
 impl<'r, 'o: 'r> Responder<'r, 'o> for Result {

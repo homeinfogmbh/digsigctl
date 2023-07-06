@@ -3,11 +3,28 @@ use gtk::{Application, ApplicationWindow};
 use gtk4 as gtk;
 use gtk4::glib::{clone, timeout_future_seconds, MainContext, Priority};
 use gtk4::{Align, Button};
+use std::fs::read_to_string;
+use std::sync::mpsc::{sync_channel, SyncSender};
+use std::thread;
 
 const TIMEOUT_SECONDS: u32 = 15;
+const ETC_HOSTNAME: &str = "/etc/hostname";
 
 #[must_use]
-pub fn create(title: String) -> Application {
+pub fn spawn() -> SyncSender<String> {
+    let (sender, receiver) = sync_channel::<String>(32);
+    thread::spawn(move || {
+        while matches!(
+            receiver.recv().expect("could not receive message").as_str(),
+            "show"
+        ) {
+            show_hostname(read_to_string(ETC_HOSTNAME).unwrap_or_else(|_| "N/A".to_string()));
+        }
+    });
+    sender
+}
+
+fn show_hostname(hostname: String) {
     let application = Application::builder()
         .application_id("de.homeinfo.digsigctl")
         .build();
@@ -18,7 +35,7 @@ pub fn create(title: String) -> Application {
             .modal(true)
             .halign(Align::Center)
             .valign(Align::Center)
-            .title(title.trim())
+            .title(hostname.trim())
             .build();
 
         add_close_button(&window);
@@ -26,7 +43,7 @@ pub fn create(title: String) -> Application {
         window.show();
     });
 
-    application
+    application.run_with_args::<&str>(&[]);
 }
 
 fn add_close_button(window: &ApplicationWindow) {
