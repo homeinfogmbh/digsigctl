@@ -3,7 +3,7 @@ use beep_evdev::Melody;
 use gtk::prelude::*;
 use gtk::{Application, ApplicationWindow};
 use gtk4 as gtk;
-use gtk4::glib::{self, clone, timeout_future_seconds, MainContext, Priority};
+use gtk4::glib::{clone, timeout_future_seconds, MainContext, Priority};
 use gtk4::{Align, Button};
 use std::fs::read_to_string;
 use std::thread;
@@ -41,8 +41,6 @@ fn show_gui(hostname: String) {
         .application_id("de.homeinfo.digsigctl")
         .build();
 
-    let (sender, receiver) = MainContext::channel(Priority::default());
-
     application.connect_activate(move |app| {
         let window = ApplicationWindow::builder()
             .application(app)
@@ -53,26 +51,9 @@ fn show_gui(hostname: String) {
             .build();
 
         add_close_button(&window);
-
-        let window_clone = window.clone();
-        MainContext::default().spawn_local(clone!(@strong sender => async move {
-            timeout_future_seconds(GUI_TIMEOUT_SECONDS).await;
-            sender.send(window_clone).expect("Could not send through channel");
-        }));
-
+        make_window_close_channel(window.clone());
         window.show();
     });
-
-    // The main loop executes the closure as soon as it receives the message
-    receiver.attach(
-        None,
-        clone!(@weak application => @default-return Continue(false),
-                    move |window| {
-                        window.close();
-                        Continue(true)
-                    }
-        ),
-    );
 
     application.run_with_args::<&str>(&[]);
 }
@@ -82,4 +63,18 @@ fn add_close_button(window: &ApplicationWindow) {
     let button_window = window.clone();
     button.connect_clicked(move |_| button_window.close());
     window.set_child(Some(&button));
+}
+
+fn make_window_close_channel(window: ApplicationWindow) {
+    let (sender, receiver) = MainContext::channel(Priority::default());
+
+    MainContext::default().spawn_local(clone!(@strong sender => async move {
+        timeout_future_seconds(GUI_TIMEOUT_SECONDS).await;
+        sender.send(window).expect("Could not send through channel");
+    }));
+
+    receiver.attach(None, move |window: ApplicationWindow| {
+        window.close();
+        Continue(true)
+    });
 }
