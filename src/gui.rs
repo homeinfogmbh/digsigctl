@@ -11,13 +11,10 @@ const TIMEOUT_SECONDS: u32 = 15;
 const ETC_HOSTNAME: &str = "/etc/hostname";
 
 #[must_use]
-pub fn spawn() -> SyncSender<String> {
-    let (sender, receiver) = sync_channel::<String>(32);
+pub fn spawn() -> SyncSender<&'static str> {
+    let (sender, receiver) = sync_channel::<&'static str>(32);
     thread::spawn(move || {
-        while matches!(
-            receiver.recv().expect("could not receive message").as_str(),
-            "show"
-        ) {
+        while matches!(receiver.recv().expect("could not receive message"), "show") {
             show_hostname(read_to_string(ETC_HOSTNAME).unwrap_or_else(|_| "N/A".to_string()));
         }
     });

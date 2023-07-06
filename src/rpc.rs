@@ -29,7 +29,7 @@ pub enum Command {
 
 impl Command {
     #[must_use]
-    pub fn run(&self, sender: &SyncSender<String>) -> Result {
+    pub fn run(&self, sender: &SyncSender<&'static str>) -> Result {
         match self {
             Self::Beep(melody) => beep(melody.as_ref().cloned()),
             Self::Reboot(delay) => reboot(*delay),
