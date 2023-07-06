@@ -20,9 +20,7 @@ pub fn spawn() -> SyncSender<&'static str> {
 }
 
 fn show_hostname(hostname: String) {
-    let application = Application::builder()
-        .application_id("de.homeinfo.digsigctl")
-        .build();
+    let application = Application::builder().build();
 
     application.connect_activate(move |app| {
         let window = ApplicationWindow::builder()
