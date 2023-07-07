@@ -60,22 +60,8 @@ impl Config {
             .get_mut("session")
             .ok_or(Error::SessionNotFound)?
             .as_object_mut()
-            .ok_or(Error::NotAJsonObject("session"))
-            .map(|session| {
-                match session
-                    .get_mut("startup_urls")
-                    .and_then(|startup_urls| startup_urls.as_array_mut())
-                {
-                    Some(startup_urls) => {
-                        startup_urls.clear();
-                        startup_urls.push(self.url.clone().into());
-                    }
-                    None => {
-                        session.insert("startup_urls".to_string(), vec![self.url.clone()].into());
-                    }
-                }
-            })?;
-
+            .ok_or(Error::NotAJsonObject("session"))?
+            .insert("startup_urls".to_string(), vec![self.url.clone()].into());
         save(&filename, &value)?;
         Ok(())
     }
