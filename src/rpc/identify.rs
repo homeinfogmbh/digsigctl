@@ -5,7 +5,7 @@ use std::thread::spawn;
 use subprocess::{Popen, PopenConfig, Redirection};
 
 const HOSTNAME: &str = "/etc/hostname";
-const XMESSAGE_TIMEOUT_SEC: u32 = 15;
+const XMESSAGE_TIMEOUT_SEC: u8 = 15;
 
 pub fn identify() -> Result {
     beep(None) + display_hostname()
