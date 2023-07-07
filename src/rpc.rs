@@ -15,7 +15,6 @@ use serde::Deserialize;
 use std::fmt::Debug;
 use std::io::Cursor;
 use std::ops::Add;
-use std::sync::mpsc::SyncSender;
 
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq)]
 pub enum Command {
@@ -29,11 +28,11 @@ pub enum Command {
 
 impl Command {
     #[must_use]
-    pub fn run(&self, sender: &SyncSender<&'static str>) -> Result {
+    pub fn run(&self) -> Result {
         match self {
             Self::Beep(melody) => beep(melody.as_ref().cloned()),
             Self::Reboot(delay) => reboot(*delay),
-            Self::Identify => identify(sender),
+            Self::Identify => identify(),
         }
     }
 }

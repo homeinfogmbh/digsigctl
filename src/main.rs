@@ -1,13 +1,12 @@
 #![allow(clippy::let_underscore_untyped, clippy::no_effect_underscore_binding)]
 
 use clap::Parser;
-use digsigctl::{discover_address, spawn, Command, Config, Result, SystemInformation};
+use digsigctl::{discover_address, Command, Config, Result, SystemInformation};
 use pnet::ipnetwork::IpNetwork;
 use rocket::serde::json::Json;
-use rocket::{get, launch, post, routes, Build, Rocket, State};
+use rocket::{get, launch, post, routes, Build, Rocket};
 use std::process::exit;
 use std::str::FromStr;
-use std::sync::mpsc::SyncSender;
 
 #[derive(Parser)]
 #[clap(about, author, version)]
@@ -22,7 +21,6 @@ struct Args {
 #[launch]
 fn rocket() -> Rocket<Build> {
     let args = Args::parse();
-    let sender = spawn();
 
     rocket::custom(
         rocket::Config::figment().merge(("port", args.port)).merge((
@@ -39,7 +37,6 @@ fn rocket() -> Rocket<Build> {
             }),
         )),
     )
-    .manage(sender)
     .mount("/", routes![configure, sysinfo, rpc])
 }
 
@@ -59,6 +56,6 @@ fn sysinfo() -> Json<SystemInformation> {
 
 #[allow(clippy::needless_pass_by_value)]
 #[post("/rpc", format = "application/json", data = "<command>")]
-fn rpc(sender: &State<SyncSender<&'static str>>, command: Json<Command>) -> Result {
-    command.run(sender.inner())
+fn rpc(command: Json<Command>) -> Result {
+    command.run()
 }
