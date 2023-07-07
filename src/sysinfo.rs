@@ -1,8 +1,8 @@
 mod cmdline;
-mod cpu_info;
+mod cpuinfo;
 mod meminfo;
 
-use crate::sysinfo::cpu_info::CpuInfo;
+use crate::sysinfo::cpuinfo::CpuInfo;
 use crate::sysinfo::meminfo::meminfo;
 use cmdline::cmdline;
 use serde::Serialize;
