@@ -3,7 +3,7 @@ use rocket::serde::json::{serde_json, Value};
 use serde::{Deserialize, Serialize};
 use std::env::join_paths;
 use std::fmt::{Debug, Display, Formatter};
-use std::fs::{read_to_string, File};
+use std::fs::{read_to_string, OpenOptions};
 use std::io::Write;
 use std::path::Path;
 
@@ -73,7 +73,10 @@ fn load(filename: impl AsRef<Path>) -> Result<Value, Error> {
 }
 
 fn save(filename: impl AsRef<Path>, value: &Value) -> Result<(), Error> {
-    File::create(filename)
+    OpenOptions::new()
+        .write(true)
+        .create(true)
+        .open(filename)
         .map_err(Error::IoError)?
         .write_all(
             serde_json::to_string(value)
