@@ -7,8 +7,11 @@ const HOSTNAME: &str = "/etc/hostname";
 const XMESSAGE_TIMEOUT: u32 = 15;
 
 pub fn identify() -> Result {
-    let beep_result = beep(None);
-    let xmessage_result = read_to_string(HOSTNAME).map_or_else(
+    beep(None) + display_hostname()
+}
+
+fn display_hostname() -> Result {
+    read_to_string(HOSTNAME).map_or_else(
         |error| Result::Error(error.to_string().into()),
         |hostname| {
             xmessage(hostname.as_str(), XMESSAGE_TIMEOUT).map_or_else(
@@ -16,8 +19,7 @@ pub fn identify() -> Result {
                 |_| Result::Success(None),
             )
         },
-    );
-    beep_result + xmessage_result
+    )
 }
 
 fn xmessage(text: &str, timeout: u32) -> subprocess::Result<Popen> {
