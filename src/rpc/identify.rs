@@ -1,6 +1,7 @@
 use crate::rpc::beep::beep;
 use crate::rpc::Result;
 use std::fs::read_to_string;
+use std::thread::spawn;
 use subprocess::{Popen, PopenConfig, Redirection};
 
 const HOSTNAME: &str = "/etc/hostname";
@@ -14,10 +15,11 @@ fn display_hostname() -> Result {
     read_to_string(HOSTNAME).map_or_else(
         |error| Result::Error(error.to_string().into()),
         |hostname| {
-            xmessage(hostname.as_str(), XMESSAGE_TIMEOUT).map_or_else(
-                |error| Result::Error(error.to_string().into()),
-                |_| Result::Success(None),
-            )
+            spawn(move || {
+                xmessage(hostname.as_str(), XMESSAGE_TIMEOUT).expect("could not display xmessage");
+            });
+
+            Result::Success(None)
         },
     )
 }
