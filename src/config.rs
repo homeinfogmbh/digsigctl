@@ -62,8 +62,7 @@ impl Config {
             .as_object_mut()
             .ok_or(Error::NotAJsonObject("session"))?
             .insert("startup_urls".to_string(), vec![self.url.clone()].into());
-        save(&filename, &value)?;
-        Ok(())
+        save(&filename, &value)
     }
 }
 
