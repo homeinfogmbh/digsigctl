@@ -5,7 +5,7 @@ use std::thread::spawn;
 use subprocess::{Popen, PopenConfig, Redirection};
 
 const HOSTNAME: &str = "/etc/hostname";
-const XMESSAGE_TIMEOUT: u32 = 15;
+const XMESSAGE_TIMEOUT_SEC: u32 = 15;
 
 pub fn identify() -> Result {
     beep(None) + display_hostname()
@@ -16,7 +16,8 @@ fn display_hostname() -> Result {
         |error| Result::Error(error.to_string().into()),
         |hostname| {
             spawn(move || {
-                xmessage(hostname.as_str(), XMESSAGE_TIMEOUT).expect("could not display xmessage");
+                xmessage(hostname.as_str(), XMESSAGE_TIMEOUT_SEC)
+                    .expect("could not display xmessage");
             });
 
             Result::Success(None)
