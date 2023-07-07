@@ -17,7 +17,7 @@ pub enum Error {
     PathError(std::env::JoinPathsError),
     HomeNotFound,
     NotAJsonObject(&'static str),
-    SessionNotFound,
+    KeyNotFound(&'static str),
 }
 
 impl Display for Error {
@@ -28,7 +28,7 @@ impl Display for Error {
             Self::PathError(error) => <std::env::JoinPathsError as Display>::fmt(error, f),
             Self::HomeNotFound => write!(f, "home directory not found"),
             Self::NotAJsonObject(key) => write!(f, "not a JSON object: {key}"),
-            Self::SessionNotFound => write!(f, "session object not found"),
+            Self::KeyNotFound(key) => write!(f, "JSON key not found: {key}"),
         }
     }
 }
@@ -58,7 +58,7 @@ impl Config {
             .as_object_mut()
             .ok_or(Error::NotAJsonObject("preferences"))?
             .get_mut("session")
-            .ok_or(Error::SessionNotFound)?
+            .ok_or(Error::KeyNotFound("session"))?
             .as_object_mut()
             .ok_or(Error::NotAJsonObject("session"))?
             .insert("startup_urls".to_string(), vec![self.url.clone()].into());
