@@ -9,11 +9,8 @@ pub struct Errors {
 }
 
 impl Errors {
-    pub fn new(errors: Vec<Error>, status: Option<Status>) -> Self {
-        Self {
-            errors,
-            status: status.unwrap_or(Status::BadRequest),
-        }
+    pub fn new(errors: Vec<Error>, status: Status) -> Self {
+        Self { errors, status }
     }
 
     pub fn errors(&self) -> &Vec<Error> {
@@ -32,31 +29,31 @@ impl Add for Errors {
         let mut errors = Vec::new();
         errors.extend(self.errors.into_iter());
         errors.extend(rhs.errors.into_iter());
-        Self::new(errors, Some(self.status))
+        Self::new(errors, self.status)
     }
 }
 
 impl From<Error> for Errors {
     fn from(error: Error) -> Self {
-        Self::new(vec![error], None)
+        Self::new(vec![error], Status::BadRequest)
     }
 }
 
 impl From<(Error, Status)> for Errors {
     fn from((error, status): (Error, Status)) -> Self {
-        Self::new(vec![error], Some(status))
+        Self::new(vec![error], status)
     }
 }
 
 impl From<&[Error]> for Errors {
     fn from(errors: &[Error]) -> Self {
-        Self::new(Vec::from(errors), None)
+        Self::new(Vec::from(errors), Status::BadRequest)
     }
 }
 
 impl From<(&[Error], Status)> for Errors {
     fn from((errors, status): (&[Error], Status)) -> Self {
-        Self::new(Vec::from(errors), Some(status))
+        Self::new(Vec::from(errors), status)
     }
 }
 
