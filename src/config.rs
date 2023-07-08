@@ -7,7 +7,7 @@ use std::fs::{read_to_string, OpenOptions};
 use std::io::Write;
 use std::path::Path;
 
-const CHROMIUM_DEFAULTS_PREFERENCES: &str = ".config/chromium/Default/Preferences";
+const CHROMIUM_DEFAULT_PREFERENCES: &str = ".config/chromium/Default/Preferences";
 
 #[allow(clippy::enum_variant_names)]
 #[derive(Debug)]
@@ -50,7 +50,7 @@ impl Config {
     pub fn apply(&self) -> Result<(), Error> {
         let filename = join_paths([
             home_dir().ok_or(Error::HomeNotFound)?,
-            CHROMIUM_DEFAULTS_PREFERENCES.into(),
+            CHROMIUM_DEFAULT_PREFERENCES.into(),
         ])
         .map_err(Error::PathError)?;
         let mut value = load(&filename)?;
