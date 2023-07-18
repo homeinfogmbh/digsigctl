@@ -3,7 +3,7 @@ use crate::rpc::Result;
 use std::fs::read_to_string;
 use subprocess::{Popen, PopenConfig, Redirection};
 
-const HOSTNAME: &str = "/etc/hostname";
+const ETC_HOSTNAME: &str = "/etc/hostname";
 const XMESSAGE_TIMEOUT_SEC: u8 = 15;
 
 pub fn identify() -> Result {
@@ -11,7 +11,7 @@ pub fn identify() -> Result {
 }
 
 fn display_hostname() -> Result {
-    read_to_string(HOSTNAME).map_or_else(
+    read_to_string(ETC_HOSTNAME).map_or_else(
         |error| Result::Error(error.to_string().into()),
         |hostname| {
             xmessage(hostname.trim(), XMESSAGE_TIMEOUT_SEC).map_or_else(
