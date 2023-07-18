@@ -33,6 +33,24 @@ impl Display for Error {
     }
 }
 
+impl From<std::io::Error> for Error {
+    fn from(error: std::io::Error) -> Self {
+        Self::IoError(error)
+    }
+}
+
+impl From<serde_json::Error> for Error {
+    fn from(error: serde_json::Error) -> Self {
+        Self::SerdeError(error)
+    }
+}
+
+impl From<std::env::JoinPathsError> for Error {
+    fn from(error: std::env::JoinPathsError) -> Self {
+        Self::PathError(error)
+    }
+}
+
 #[derive(Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct Config {
     url: String,
@@ -51,8 +69,7 @@ impl Config {
         let filename = join_paths([
             home_dir().ok_or(Error::HomeNotFound)?,
             CHROMIUM_DEFAULT_PREFERENCES.into(),
-        ])
-        .map_err(Error::PathError)?;
+        ])?;
         let mut value = load(&filename)?;
         value
             .as_object_mut()
@@ -67,20 +84,13 @@ impl Config {
 }
 
 fn load(filename: impl AsRef<Path>) -> Result<Value, Error> {
-    serde_json::from_str::<Value>(&read_to_string(filename).map_err(Error::IoError)?)
-        .map_err(Error::SerdeError)
+    Ok(serde_json::from_str::<Value>(&read_to_string(filename)?)?)
 }
 
 fn save(filename: impl AsRef<Path>, value: &Value) -> Result<(), Error> {
-    OpenOptions::new()
+    Ok(OpenOptions::new()
         .write(true)
         .create(true)
-        .open(filename)
-        .map_err(Error::IoError)?
-        .write_all(
-            serde_json::to_string(value)
-                .map_err(Error::SerdeError)?
-                .as_bytes(),
-        )
-        .map_err(Error::IoError)
+        .open(filename)?
+        .write_all(serde_json::to_string(value)?.as_bytes())?)
 }
