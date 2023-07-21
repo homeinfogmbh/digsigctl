@@ -56,24 +56,28 @@ impl Add for Result {
     }
 }
 
+impl TryFrom<Result> for (String, Status) {
+    type Error = Status;
+
+    fn try_from(result: Result) -> std::result::Result<Self, Self::Error> {
+        Ok(match result {
+            Result::Success(message) => (
+                rocket::serde::json::to_string(&message)
+                    .map_err(|_| Status::InternalServerError)?,
+                Status::Accepted,
+            ),
+            Result::Error(errors) => (
+                rocket::serde::json::to_string(errors.errors())
+                    .map_err(|_| Status::InternalServerError)?,
+                errors.status(),
+            ),
+        })
+    }
+}
+
 impl<'r, 'o: 'r> Responder<'r, 'o> for Result {
     fn respond_to(self, _: &'r Request<'_>) -> rocket::response::Result<'o> {
-        let json;
-        let status;
-
-        match self {
-            Self::Success(message) => {
-                json = rocket::serde::json::to_string(&message)
-                    .map_err(|_| Status::InternalServerError)?;
-                status = Status::Accepted;
-            }
-            Self::Error(errors) => {
-                json = rocket::serde::json::to_string(errors.errors())
-                    .map_err(|_| Status::InternalServerError)?;
-                status = errors.status();
-            }
-        }
-
+        let (json, status): (String, Status) = self.try_into()?;
         Response::build()
             .header(ContentType::JSON)
             .status(status)
