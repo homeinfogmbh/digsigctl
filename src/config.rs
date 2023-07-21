@@ -14,7 +14,7 @@ const CHROMIUM_DEFAULT_PREFERENCES: &str = ".config/chromium/Default/Preferences
 pub enum Error {
     SerdeError(serde_json::Error),
     IoError(std::io::Error),
-    PathError(std::env::JoinPathsError),
+    JoinPathsError(std::env::JoinPathsError),
     HomeNotFound,
     NotAJsonObject(&'static str),
     KeyNotFound(&'static str),
@@ -25,7 +25,7 @@ impl Display for Error {
         match self {
             Self::SerdeError(error) => <serde_json::Error as Display>::fmt(error, f),
             Self::IoError(error) => <std::io::Error as Display>::fmt(error, f),
-            Self::PathError(error) => <std::env::JoinPathsError as Display>::fmt(error, f),
+            Self::JoinPathsError(error) => <std::env::JoinPathsError as Display>::fmt(error, f),
             Self::HomeNotFound => write!(f, "home directory not found"),
             Self::NotAJsonObject(key) => write!(f, "not a JSON object: {key}"),
             Self::KeyNotFound(key) => write!(f, "JSON key not found: {key}"),
@@ -47,7 +47,7 @@ impl From<serde_json::Error> for Error {
 
 impl From<std::env::JoinPathsError> for Error {
     fn from(error: std::env::JoinPathsError) -> Self {
-        Self::PathError(error)
+        Self::JoinPathsError(error)
     }
 }
 
