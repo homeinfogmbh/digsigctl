@@ -23,7 +23,7 @@ fn display_hostname() -> Result {
 fn xmessage(text: &str, timeout: u8) -> subprocess::Result<Popen> {
     Popen::create(
         &[
-            "xmessagea",
+            "xmessage",
             "-center",
             "-timeout",
             timeout.to_string().as_str(),
