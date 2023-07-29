@@ -21,7 +21,7 @@ impl Add for Result {
             (Self::Error(lhs), Self::Error(rhs)) => Self::Error(lhs + rhs),
             (Self::Error(lhs), _) => Self::Error(lhs),
             (_, Self::Error(rhs)) => Self::Error(rhs),
-            _ => Self::Success(Box::new(Option::<()>::None)),
+            _ => Self::Success(Box::new(())),
         }
     }
 }
