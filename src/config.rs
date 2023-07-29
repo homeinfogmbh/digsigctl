@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 use std::fmt::{Debug, Display, Formatter};
 use std::fs::{read_to_string, OpenOptions};
 use std::io::Write;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 const CHROMIUM_DEFAULT_PREFERENCES: &str = ".config/chromium/Default/Preferences";
 
@@ -59,9 +59,7 @@ impl Config {
     /// # Errors
     /// Returns an [`digsigctl::config::Error`] if the configuration could not be applied
     pub fn apply(&self) -> Result<(), Error> {
-        let filename = home_dir()
-            .ok_or(Error::HomeNotFound)?
-            .join(CHROMIUM_DEFAULT_PREFERENCES);
+        let filename = filename()?;
         let mut value = load(&filename)?;
         value
             .as_object_mut()
@@ -73,6 +71,12 @@ impl Config {
             .insert("startup_urls".to_string(), vec![self.url.clone()].into());
         save(&filename, &value)
     }
+}
+
+pub fn filename() -> Result<PathBuf, Error> {
+    home_dir()
+        .map(|home| home.join(CHROMIUM_DEFAULT_PREFERENCES))
+        .ok_or(Error::HomeNotFound)
 }
 
 fn load(filename: impl AsRef<Path>) -> Result<Value, Error> {
