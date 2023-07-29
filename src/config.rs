@@ -1,7 +1,6 @@
 use home::home_dir;
 use rocket::serde::json::{serde_json, Value};
 use serde::{Deserialize, Serialize};
-use std::env::join_paths;
 use std::fmt::{Debug, Display, Formatter};
 use std::fs::{read_to_string, OpenOptions};
 use std::io::Write;
@@ -14,7 +13,6 @@ const CHROMIUM_DEFAULT_PREFERENCES: &str = ".config/chromium/Default/Preferences
 pub enum Error {
     SerdeError(serde_json::Error),
     IoError(std::io::Error),
-    JoinPathsError(std::env::JoinPathsError),
     HomeNotFound,
     NotAJsonObject(&'static str),
     KeyNotFound(&'static str),
@@ -25,7 +23,6 @@ impl Display for Error {
         match self {
             Self::SerdeError(error) => <serde_json::Error as Display>::fmt(error, f),
             Self::IoError(error) => <std::io::Error as Display>::fmt(error, f),
-            Self::JoinPathsError(error) => <std::env::JoinPathsError as Display>::fmt(error, f),
             Self::HomeNotFound => write!(f, "home directory not found"),
             Self::NotAJsonObject(key) => write!(f, "not a JSON object: {key}"),
             Self::KeyNotFound(key) => write!(f, "JSON key not found: {key}"),
@@ -47,12 +44,6 @@ impl From<serde_json::Error> for Error {
     }
 }
 
-impl From<std::env::JoinPathsError> for Error {
-    fn from(error: std::env::JoinPathsError) -> Self {
-        Self::JoinPathsError(error)
-    }
-}
-
 #[derive(Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct Config {
     url: String,
@@ -68,10 +59,9 @@ impl Config {
     /// # Errors
     /// Returns an [`digsigctl::config::Error`] if the configuration could not be applied
     pub fn apply(&self) -> Result<(), Error> {
-        let filename = join_paths([
-            home_dir().ok_or(Error::HomeNotFound)?,
-            CHROMIUM_DEFAULT_PREFERENCES.into(),
-        ])?;
+        let filename = home_dir()
+            .ok_or(Error::HomeNotFound)?
+            .join(CHROMIUM_DEFAULT_PREFERENCES);
         let mut value = load(&filename)?;
         value
             .as_object_mut()
