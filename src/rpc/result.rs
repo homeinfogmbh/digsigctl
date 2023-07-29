@@ -26,10 +26,8 @@ impl Add for Result {
     }
 }
 
-impl TryFrom<Result> for (Status, String) {
-    type Error = serde_json::Error;
-
-    fn try_from(result: Result) -> std::result::Result<Self, Self::Error> {
+impl From<Result> for (Status, String) {
+    fn from(result: Result) -> Self {
         match result {
             Result::Success(value) => {
                 serde_json::to_string(value.as_ref()).map(|json| (Status::Ok, json))
@@ -38,13 +36,16 @@ impl TryFrom<Result> for (Status, String) {
                 serde_json::to_string(errors.errors()).map(|json| (errors.status(), json))
             }
         }
+        .unwrap_or((
+            Status::InternalServerError,
+            "Cannot serialize message.".to_string(),
+        ))
     }
 }
 
 impl<'r, 'o: 'r> Responder<'r, 'o> for Result {
     fn respond_to(self, _: &'r Request<'_>) -> rocket::response::Result<'o> {
-        let (status, json): (Status, String) =
-            self.try_into().map_err(|_| Status::InternalServerError)?;
+        let (status, json): (Status, String) = self.into();
         Response::build()
             .header(ContentType::JSON)
             .status(status)
