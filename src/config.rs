@@ -59,7 +59,7 @@ impl Config {
     /// # Errors
     /// Returns an [`digsigctl::config::Error`] if the configuration could not be applied
     pub fn apply(&self) -> Result<(), Error> {
-        let filename = filename()?;
+        let filename = filename().ok_or(Error::HomeNotFound)?;
         let mut value = load(&filename)?;
         value
             .as_object_mut()
@@ -73,10 +73,8 @@ impl Config {
     }
 }
 
-pub fn filename() -> Result<PathBuf, Error> {
-    home_dir()
-        .map(|home| home.join(CHROMIUM_DEFAULT_PREFERENCES))
-        .ok_or(Error::HomeNotFound)
+pub fn filename() -> Option<PathBuf> {
+    home_dir().map(|home| home.join(CHROMIUM_DEFAULT_PREFERENCES))
 }
 
 fn load(filename: impl AsRef<Path>) -> Result<Value, Error> {
