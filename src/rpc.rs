@@ -3,6 +3,7 @@ mod error;
 mod identify;
 mod reboot;
 
+use crate::config::filename;
 use crate::rpc::beep::beep;
 use crate::rpc::error::Errors;
 use crate::rpc::identify::identify;
@@ -24,6 +25,8 @@ pub enum Command {
     Reboot(Option<u64>),
     #[serde(rename = "identify")]
     Identify,
+    #[serde(rename = "configFile")]
+    ConfigFile,
 }
 
 impl Command {
@@ -33,6 +36,9 @@ impl Command {
             Self::Beep(melody) => beep(melody.as_ref().cloned()),
             Self::Reboot(delay) => reboot(*delay),
             Self::Identify => identify(),
+            Self::ConfigFile => {
+                Result::Success(filename().and_then(|path| path.to_str().map(ToString::to_string)))
+            }
         }
     }
 }
