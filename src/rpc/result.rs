@@ -26,6 +26,15 @@ impl Add for Result {
     }
 }
 
+impl<E> From<E> for Result
+where
+    E: std::error::Error,
+{
+    fn from(error: E) -> Self {
+        Self::Error(error.to_string().into())
+    }
+}
+
 impl From<Result> for (Status, String) {
     fn from(result: Result) -> Self {
         match result {

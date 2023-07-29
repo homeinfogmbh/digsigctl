@@ -14,10 +14,8 @@ fn display_hostname() -> Result {
     read_to_string(ETC_HOSTNAME).map_or_else(
         |error| Result::Error(error.to_string().into()),
         |hostname| {
-            xmessage(hostname.trim(), XMESSAGE_TIMEOUT_SEC).map_or_else(
-                |error| Result::Error(error.to_string().into()),
-                |_| Result::Success(Box::new(())),
-            )
+            xmessage(hostname.trim(), XMESSAGE_TIMEOUT_SEC)
+                .map_or_else(std::convert::Into::into, |_| Result::Success(Box::new(())))
         },
     )
 }
@@ -25,7 +23,7 @@ fn display_hostname() -> Result {
 fn xmessage(text: &str, timeout: u8) -> subprocess::Result<Popen> {
     Popen::create(
         &[
-            "xmessage",
+            "xmessagea",
             "-center",
             "-timeout",
             timeout.to_string().as_str(),
