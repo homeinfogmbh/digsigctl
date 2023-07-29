@@ -11,5 +11,5 @@ pub fn reboot(delay: Option<u64>) -> Result {
         system_shutdown::reboot().unwrap_or_else(|error| eprintln!("Could not reboot: {error}"));
     });
 
-    Result::Success(None)
+    Result::Success(Box::new(Option::<()>::None))
 }

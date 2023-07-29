@@ -16,7 +16,7 @@ fn display_hostname() -> Result {
         |hostname| {
             xmessage(hostname.trim(), XMESSAGE_TIMEOUT_SEC).map_or_else(
                 |error| Result::Error(error.to_string().into()),
-                |_| Result::Success(None),
+                |_| Result::Success(Box::new(Option::<()>::None)),
             )
         },
     )

@@ -11,6 +11,7 @@ use crate::rpc::reboot::reboot;
 use beep_evdev::Melody;
 use rocket::http::{ContentType, Status};
 use rocket::response::Responder;
+use rocket::serde::json::serde_json;
 use rocket::{Request, Response};
 use serde::Deserialize;
 use std::fmt::Debug;
@@ -36,16 +37,15 @@ impl Command {
             Self::Beep(melody) => beep(melody.as_ref().cloned()),
             Self::Reboot(delay) => reboot(*delay),
             Self::Identify => identify(),
-            Self::ConfigFile => {
-                Result::Success(filename().and_then(|path| path.to_str().map(ToString::to_string)))
-            }
+            Self::ConfigFile => Result::Success(Box::new(
+                filename().and_then(|path| path.to_str().map(ToString::to_string)),
+            )),
         }
     }
 }
 
-#[derive(Clone, Debug, Eq, PartialEq)]
 pub enum Result {
-    Success(Option<String>),
+    Success(Box<dyn erased_serde::Serialize>),
     Error(Errors),
 }
 
@@ -57,33 +57,30 @@ impl Add for Result {
             (Self::Error(lhs), Self::Error(rhs)) => Self::Error(lhs + rhs),
             (Self::Error(lhs), _) => Self::Error(lhs),
             (_, Self::Error(rhs)) => Self::Error(rhs),
-            _ => Self::Success(None),
+            _ => Self::Success(Box::new(Option::<()>::None)),
         }
     }
 }
 
-impl TryFrom<Result> for (String, Status) {
-    type Error = Status;
+impl TryFrom<Result> for (Status, String) {
+    type Error = serde_json::Error;
 
     fn try_from(result: Result) -> std::result::Result<Self, Self::Error> {
-        Ok(match result {
-            Result::Success(message) => (
-                rocket::serde::json::to_string(&message)
-                    .map_err(|_| Status::InternalServerError)?,
-                Status::Accepted,
-            ),
-            Result::Error(errors) => (
-                rocket::serde::json::to_string(errors.errors())
-                    .map_err(|_| Status::InternalServerError)?,
-                errors.status(),
-            ),
-        })
+        match result {
+            Result::Success(value) => {
+                serde_json::to_string(value.as_ref()).map(|json| (Status::Ok, json))
+            }
+            Result::Error(errors) => {
+                serde_json::to_string(errors.errors()).map(|json| (errors.status(), json))
+            }
+        }
     }
 }
 
 impl<'r, 'o: 'r> Responder<'r, 'o> for Result {
     fn respond_to(self, _: &'r Request<'_>) -> rocket::response::Result<'o> {
-        let (json, status): (String, Status) = self.try_into()?;
+        let (status, json): (Status, String) =
+            self.try_into().map_err(|_| Status::InternalServerError)?;
         Response::build()
             .header(ContentType::JSON)
             .status(status)
