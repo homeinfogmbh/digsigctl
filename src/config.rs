@@ -1,6 +1,6 @@
 use home::home_dir;
 use rocket::serde::json::{serde_json, Value};
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 use std::fmt::{Debug, Display, Formatter};
 use std::fs::{read_to_string, OpenOptions};
 use std::io::Write;
@@ -53,7 +53,7 @@ impl From<serde_json::Error> for Error {
     }
 }
 
-#[derive(Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[derive(Debug, Deserialize, Eq, PartialEq)]
 pub struct Config {
     url: String,
 }
