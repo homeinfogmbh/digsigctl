@@ -5,6 +5,7 @@ use std::fmt::{Debug, Display, Formatter};
 use std::fs::{read_to_string, OpenOptions};
 use std::io::Write;
 use std::path::{Path, PathBuf};
+use subprocess::{Popen, PopenConfig, Redirection};
 
 const CHROMIUM_DEFAULT_PREFERENCES: &str = ".config/chromium/Default/Preferences";
 
@@ -66,7 +67,7 @@ impl Config {
     /// Applies the configuration to the system
     /// # Errors
     /// Returns an [`digsigctl::config::Error`] if the configuration could not be applied
-    pub fn apply(&self) -> Result<(), Error> {
+    pub fn apply(&self) -> Result<(), anyhow::Error> {
         let filename = filename().ok_or(Error::HomeNotFound)?;
         let mut value = load(&filename)?;
         value
@@ -77,8 +78,21 @@ impl Config {
             .as_object_mut()
             .ok_or(Error::NotAJsonObject("session"))?
             .insert("startup_urls".to_string(), vec![self.url.clone()].into());
-        save(&filename, &value)
+        save(&filename, &value)?;
+        reload()?;
+        Ok(())
     }
+}
+
+pub fn reload() -> subprocess::Result<Popen> {
+    Popen::create(
+        &["systemctl", "restart", "chromium.service"],
+        PopenConfig {
+            stdout: Redirection::None,
+            detached: false,
+            ..Default::default()
+        },
+    )
 }
 
 pub fn filename() -> Option<PathBuf> {
