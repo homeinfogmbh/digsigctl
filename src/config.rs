@@ -88,7 +88,7 @@ impl Config {
     }
 }
 
-pub fn reload() -> subprocess::Result<Popen> {
+fn reload() -> subprocess::Result<Popen> {
     Popen::create(
         &["systemctl", "restart", "chromium.service"],
         PopenConfig {
