@@ -68,6 +68,12 @@ impl Config {
     /// # Errors
     /// Returns an [`digsigctl::config::Error`] if the configuration could not be applied
     pub fn apply(&self) -> Result<(), anyhow::Error> {
+        self.update()?;
+        reload()?;
+        Ok(())
+    }
+
+    fn update(&self) -> Result<(), Error> {
         let filename = filename().ok_or(Error::HomeNotFound)?;
         let mut value = load(&filename)?;
         value
@@ -78,9 +84,7 @@ impl Config {
             .as_object_mut()
             .ok_or(Error::NotAJsonObject("session"))?
             .insert("startup_urls".to_string(), vec![self.url.clone()].into());
-        save(&filename, &value)?;
-        reload()?;
-        Ok(())
+        save(&filename, &value)
     }
 }
 
