@@ -4,6 +4,6 @@ mod rpc;
 mod sysinfo;
 
 pub use config::Config;
-pub use net::discover_address;
+pub use net::{discover_address, discover_address_or_exit};
 pub use rpc::{Command, Result};
 pub use sysinfo::SystemInformation;

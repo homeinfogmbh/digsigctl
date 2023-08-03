@@ -1,12 +1,9 @@
 #![allow(clippy::let_underscore_untyped, clippy::no_effect_underscore_binding)]
 
 use clap::Parser;
-use digsigctl::{discover_address, Command, Config, Result, SystemInformation};
-use pnet::ipnetwork::IpNetwork;
+use digsigctl::{discover_address_or_exit, Command, Config, Result, SystemInformation};
 use rocket::serde::json::Json;
 use rocket::{get, launch, post, routes, Build, Rocket};
-use std::process::exit;
-use std::str::FromStr;
 
 #[derive(Parser)]
 #[clap(about, author, version)]
@@ -23,19 +20,9 @@ fn rocket() -> Rocket<Build> {
     let args = Args::parse();
 
     rocket::custom(
-        rocket::Config::figment().merge(("port", args.port)).merge((
-            "address",
-            discover_address(
-                IpNetwork::from_str(args.network.as_str()).unwrap_or_else(|error| {
-                    eprintln!("{error}");
-                    exit(1)
-                }),
-            )
-            .unwrap_or_else(|| {
-                eprintln!("No address found");
-                exit(2);
-            }),
-        )),
+        rocket::Config::figment()
+            .merge(("port", args.port))
+            .merge(("address", discover_address_or_exit(args.network.as_str()))),
     )
     .mount("/", routes![configure, sysinfo, rpc])
 }
