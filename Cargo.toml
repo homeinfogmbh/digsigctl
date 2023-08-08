@@ -11,7 +11,6 @@ clap = { version = "4.3.10", features = ["derive"] }
 configparser = "3.0.2"
 either = "1.8.1"
 erased-serde = "0.3.28"
-home = "0.5.5"
 pnet = "0.34.0"
 proc-cpuinfo = "0.1.4"
 rocket = { version = "0.5.0-rc.3", features = ["json"] }
@@ -21,3 +20,4 @@ system_shutdown = "4.0.1"
 
 [target."cfg(unix)".dependencies]
 beep-evdev = { version = "0.1.2", features = ["serde"] }
+home = "0.5.5"
