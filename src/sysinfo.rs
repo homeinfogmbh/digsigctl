@@ -23,28 +23,17 @@ pub struct SystemInformation {
     mem_info: Option<HashMap<String, usize>>,
 }
 
-#[cfg(target_family = "unix")]
 impl SystemInformation {
     #[must_use]
     pub fn gather() -> Self {
         Self {
+            #[cfg(target_family = "unix")]
             os: Os::Unix,
+            #[cfg(target_family = "windows")]
+            os: Os::Windows,
             cmd_line: cmdline().ok(),
             cpu_info: CpuInfo::read().ok(),
             mem_info: meminfo().ok(),
-        }
-    }
-}
-
-#[cfg(target_family = "windows")]
-impl SystemInformation {
-    #[must_use]
-    pub fn gather() -> Self {
-        Self {
-            os: Os::Windows,
-            cmd_line: None,
-            cpu_info: None,
-            mem_info: None,
         }
     }
 }

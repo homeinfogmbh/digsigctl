@@ -3,7 +3,6 @@ use std::fs::read_to_string;
 
 const PROC_MEMINFO: &str = "/proc/meminfo";
 
-#[cfg(target_family = "unix")]
 pub fn meminfo() -> Result<HashMap<String, usize>, std::io::Error> {
     Ok(read_to_string(PROC_MEMINFO)?
         .lines()

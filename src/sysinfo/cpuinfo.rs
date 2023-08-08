@@ -8,7 +8,6 @@ const BAY_TRAIL_CPUS: [&str; 46] = [
     "Z3745D", "Z3770", "Z3770D", "Z3775", "Z3775D", "Z3785", "Z3795",
 ];
 
-#[cfg(target_family = "unix")]
 #[derive(Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct CpuInfo {
     is_bay_trail: bool,
