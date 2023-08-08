@@ -7,7 +7,6 @@ edition = "2021"
 
 [dependencies]
 anyhow = "1.0.72"
-beep-evdev = { version = "0.1.2", features = ["serde"] }
 clap = { version = "4.3.10", features = ["derive"] }
 configparser = "3.0.2"
 either = "1.8.1"
@@ -19,3 +18,6 @@ rocket = { version = "0.5.0-rc.3", features = ["json"] }
 serde = { version = "1.0.164", features = ["derive"] }
 subprocess = "0.2.9"
 system_shutdown = "4.0.1"
+
+[target."cfg(unix)".dependencies]
+beep-evdev = { version = "0.1.2", features = ["serde"] }

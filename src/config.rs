@@ -1,6 +1,6 @@
-use home::home_dir;
 use rocket::serde::json::{serde_json, Value};
 use serde::Deserialize;
+use std::env::var;
 use std::fmt::{Debug, Display, Formatter};
 use std::fs::{read_to_string, OpenOptions};
 use std::io::Write;
@@ -11,14 +11,27 @@ use subprocess::{Popen, PopenConfig, Redirection};
 const CHROMIUM_DEFAULT_PREFERENCES: &str = ".config/chromium/Default/Preferences";
 
 #[cfg(target_family = "windows")]
-const CHROMIUM_DEFAULT_PREFERENCES: &str = todo!();
+const CHROMIUM_DEFAULT_PREFERENCES: &str = r"Google\Chrome\User Data\Default";
+
+#[cfg(target_family = "unix")]
+pub fn chromium_default_preferences() -> Option<PathBuf> {
+    home_dir().map(|home| home.join(CHROMIUM_DEFAULT_PREFERENCES))
+}
+
+#[cfg(target_family = "windows")]
+pub fn chromium_default_preferences() -> Option<PathBuf> {
+    var("%LOCALAPPDATA%")
+        .map(PathBuf::from)
+        .map(|home| home.join(CHROMIUM_DEFAULT_PREFERENCES))
+        .ok()
+}
 
 #[allow(clippy::enum_variant_names)]
 #[derive(Debug)]
 pub enum Error {
     SerdeError(serde_json::Error),
     IoError(std::io::Error),
-    HomeNotFound,
+    ChromiumDefaultPreferencesNotFound,
     NotAJsonObject(&'static str),
     KeyNotFound(&'static str),
 }
@@ -28,7 +41,9 @@ impl Display for Error {
         match self {
             Self::SerdeError(error) => <serde_json::Error as Display>::fmt(error, f),
             Self::IoError(error) => <std::io::Error as Display>::fmt(error, f),
-            Self::HomeNotFound => write!(f, "home directory not found"),
+            Self::ChromiumDefaultPreferencesNotFound => {
+                write!(f, "Chrome / Chromium default preferences not found")
+            }
             Self::NotAJsonObject(key) => write!(f, "not a JSON object: {key}"),
             Self::KeyNotFound(key) => write!(f, "JSON key not found: {key}"),
         }
@@ -78,7 +93,8 @@ impl Config {
     }
 
     fn update(&self) -> Result<(), Error> {
-        let filename = filename().ok_or(Error::HomeNotFound)?;
+        let filename =
+            chromium_default_preferences().ok_or(Error::ChromiumDefaultPreferencesNotFound)?;
         let mut value = load(&filename)?;
         value
             .as_object_mut()
@@ -101,10 +117,6 @@ fn reload() -> subprocess::Result<Popen> {
             ..Default::default()
         },
     )
-}
-
-pub fn filename() -> Option<PathBuf> {
-    home_dir().map(|home| home.join(CHROMIUM_DEFAULT_PREFERENCES))
 }
 
 fn load(filename: impl AsRef<Path>) -> Result<Value, Error> {

@@ -1,4 +1,5 @@
 use crate::rpc::Result;
+#[cfg(target_family = "unix")]
 use beep_evdev::Melody;
 
 #[cfg(target_family = "unix")]
@@ -10,6 +11,6 @@ pub fn beep(melody: Option<Melody>) -> Result {
 }
 
 #[cfg(target_family = "windows")]
-pub fn beep(melody: Option<Melody>) -> Result {
+pub fn beep(melody: Option<()>) -> Result {
     todo!()
 }
