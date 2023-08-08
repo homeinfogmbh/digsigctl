@@ -2,6 +2,7 @@ use crate::rpc::Result;
 use std::thread;
 use std::time::Duration;
 
+#[cfg(target_family = "unix")]
 pub fn reboot(delay: Option<u64>) -> Result {
     let _ = thread::spawn(move || {
         if let Some(delay) = delay {
@@ -12,4 +13,9 @@ pub fn reboot(delay: Option<u64>) -> Result {
     });
 
     Result::Success(Box::new(()))
+}
+
+#[cfg(target_family = "windows")]
+pub fn reboot(delay: Option<u64>) -> Result {
+    todo!()
 }

@@ -6,8 +6,14 @@ use subprocess::{Popen, PopenConfig, Redirection};
 const ETC_HOSTNAME: &str = "/etc/hostname";
 const XMESSAGE_TIMEOUT_SEC: u8 = 15;
 
+#[cfg(target_family = "unix")]
 pub fn identify() -> Result {
     beep(None) + display_hostname()
+}
+
+#[cfg(target_family = "windows")]
+pub fn identify() -> Result {
+    beep(None)
 }
 
 fn display_hostname() -> Result {

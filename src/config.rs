@@ -7,7 +7,11 @@ use std::io::Write;
 use std::path::{Path, PathBuf};
 use subprocess::{Popen, PopenConfig, Redirection};
 
+#[cfg(target_family = "unix")]
 const CHROMIUM_DEFAULT_PREFERENCES: &str = ".config/chromium/Default/Preferences";
+
+#[cfg(target_family = "windows")]
+const CHROMIUM_DEFAULT_PREFERENCES: &str = todo!();
 
 #[allow(clippy::enum_variant_names)]
 #[derive(Debug)]
