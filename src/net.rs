@@ -19,9 +19,9 @@ pub fn discover_address_or_exit(network: &str) -> IpAddr {
 #[must_use]
 pub fn discover_address(network: IpNetwork) -> Option<IpAddr> {
     if let Ok(network_interfaces) = list_afinet_netifas() {
-        for (_, ip) in &network_interfaces {
-            if network.contains(*ip) {
-                return Some(*ip);
+        for (_, ip) in network_interfaces {
+            if network.contains(ip) {
+                return Some(ip);
             }
         }
     }
