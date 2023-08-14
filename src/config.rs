@@ -1,5 +1,8 @@
+#[cfg(target_family = "unix")]
+use home::home_dir;
 use rocket::serde::json::{serde_json, Value};
 use serde::Deserialize;
+#[cfg(target_family = "windows")]
 use std::env::var;
 use std::fmt::{Debug, Display, Formatter};
 use std::fs::{read_to_string, OpenOptions};
