@@ -11,7 +11,8 @@ clap = { version = "4.3.10", features = ["derive"] }
 configparser = "3.0.2"
 either = "1.8.1"
 erased-serde = "0.3.28"
-pnet = "0.34.0"
+ipnetwork = { version = "0.20.0", default-features = false }
+local-ip-address = "0.5.4"
 proc-cpuinfo = "0.1.4"
 rocket = { version = "0.5.0-rc.3", features = ["json"] }
 serde = { version = "1.0.164", features = ["derive"] }

@@ -1,5 +1,5 @@
-use pnet::datalink::interfaces;
-use pnet::ipnetwork::IpNetwork;
+use ipnetwork::IpNetwork;
+use local_ip_address::list_afinet_netifas;
 use std::net::IpAddr;
 use std::process::exit;
 use std::str::FromStr;
@@ -18,10 +18,10 @@ pub fn discover_address_or_exit(network: &str) -> IpAddr {
 
 #[must_use]
 pub fn discover_address(network: IpNetwork) -> Option<IpAddr> {
-    for iface in interfaces() {
-        for ip in iface.ips {
-            if network.contains(ip.ip()) {
-                return Some(ip.ip());
+    if let Ok(network_interfaces) = list_afinet_netifas() {
+        for (_, ip) in &network_interfaces {
+            if network.contains(*ip) {
+                return Some(*ip);
             }
         }
     }
