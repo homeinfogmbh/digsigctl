@@ -11,6 +11,6 @@ pub fn beep(melody: Option<Melody>) -> Result {
 }
 
 #[cfg(target_family = "windows")]
-pub fn beep(melody: Option<()>) -> Result {
+pub fn beep(_: Option<()>) -> Result {
     todo!()
 }
