@@ -12,7 +12,7 @@ pub fn identify() -> Result {
 }
 
 #[cfg(target_family = "unix")]
-pub mod unix {
+mod unix {
     use crate::rpc::Result;
     use std::fs::read_to_string;
     use subprocess::{Popen, PopenConfig, Redirection};
