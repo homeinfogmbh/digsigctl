@@ -12,14 +12,15 @@ pub fn identify() -> Result {
 }
 
 #[cfg(target_family = "unix")]
-mod unix {
+pub mod unix {
+    use crate::rpc::Result;
     use std::fs::read_to_string;
     use subprocess::{Popen, PopenConfig, Redirection};
 
     const ETC_HOSTNAME: &str = "/etc/hostname";
     const XMESSAGE_TIMEOUT_SEC: u8 = 15;
 
-    fn display_hostname() -> Result {
+    pub fn display_hostname() -> Result {
         read_to_string(ETC_HOSTNAME).map_or_else(
             |error| Result::Error(error.to_string().into()),
             |hostname| {
