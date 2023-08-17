@@ -10,7 +10,7 @@ use std::fmt::Debug;
 use std::fs::{read_to_string, OpenOptions};
 use std::io::Write;
 use std::path::Path;
-use subprocess::{Popen, PopenConfig, Redirection};
+use subprocess::{ExitStatus, Popen, PopenConfig, Redirection};
 
 #[derive(Debug, Deserialize, Eq, PartialEq)]
 pub struct Config {
@@ -28,7 +28,11 @@ impl Config {
     /// Returns an [`digsigctl::config::Error`] if the configuration could not be applied
     pub fn apply(&self) -> Result<(), anyhow::Error> {
         self.update()?;
-        reload()?;
+
+        if reload()?.exit_status().unwrap_or(ExitStatus::Exited(1)) != ExitStatus::Exited(0) {
+            return Err(Error::SubprocessFailed.into());
+        }
+
         Ok(())
     }
 
