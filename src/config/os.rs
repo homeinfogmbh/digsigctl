@@ -33,6 +33,7 @@ mod unix {
             },
         )
     }
+
     pub fn chromium_is_running() -> subprocess::Result<bool> {
         Popen::create(
             &["systemctl", "status", "chromium.service"],
