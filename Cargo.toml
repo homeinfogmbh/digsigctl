@@ -20,5 +20,5 @@ subprocess = "0.2.9"
 system_shutdown = "4.0.1"
 
 [target."cfg(unix)".dependencies]
-beep-evdev = { version = "0.1.2", features = ["serde"] }
+beep-evdev = { version = "0.2.0", features = ["serde"] }
 home = "0.5.5"
