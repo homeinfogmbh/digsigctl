@@ -2,7 +2,7 @@ mod error;
 mod os;
 
 pub use error::Error;
-pub use os::chromium_default_preferences;
+pub use os::{chromium_default_preferences, reload};
 use rocket::serde::json::serde_json::Map;
 use rocket::serde::json::{serde_json, Value};
 use serde::Deserialize;
@@ -10,7 +10,7 @@ use std::fmt::Debug;
 use std::fs::{read_to_string, OpenOptions};
 use std::io::Write;
 use std::path::Path;
-use subprocess::{ExitStatus, Popen, PopenConfig, Redirection};
+use subprocess::ExitStatus;
 
 #[derive(Debug, Deserialize, Eq, PartialEq)]
 pub struct Config {
@@ -63,17 +63,6 @@ impl Config {
 
         save(&filename, &value)
     }
-}
-
-fn reload() -> subprocess::Result<Popen> {
-    Popen::create(
-        &["systemctl", "restart", "chromium.service"],
-        PopenConfig {
-            stdout: Redirection::None,
-            detached: false,
-            ..Default::default()
-        },
-    )
 }
 
 fn load(filename: impl AsRef<Path>) -> Result<Value, Error> {
