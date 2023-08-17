@@ -2,11 +2,7 @@ mod error;
 mod os;
 
 pub use error::Error;
-pub use os::await_chromium_shutdown;
-#[cfg(target_family = "unix")]
-pub use os::unix::{chromium_default_preferences, start_chromium};
-#[cfg(target_family = "windows")]
-pub use os::windows::{chromium_default_preferences, start_chromium};
+pub use os::{await_chromium_shutdown, chromium_default_preferences, start_chromium};
 use rocket::serde::json::serde_json::Map;
 use rocket::serde::json::{serde_json, Value};
 use serde::Deserialize;

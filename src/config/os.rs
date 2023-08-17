@@ -1,7 +1,9 @@
 #[cfg(target_family = "unix")]
-use unix::{chromium_is_running, stop_chromium};
+pub use unix::{chromium_default_preferences, chromium_is_running, start_chromium, stop_chromium};
 #[cfg(target_family = "windows")]
-use windows::{chromium_is_running, stop_chromium};
+pub use windows::{
+    chromium_default_preferences, chromium_is_running, start_chromium, stop_chromium,
+};
 
 pub fn await_chromium_shutdown() -> subprocess::Result<()> {
     stop_chromium()?;
@@ -10,7 +12,7 @@ pub fn await_chromium_shutdown() -> subprocess::Result<()> {
 }
 
 #[cfg(target_family = "unix")]
-pub mod unix {
+mod unix {
     use home::home_dir;
     use std::path::PathBuf;
     use subprocess::{ExitStatus, Popen, PopenConfig, Redirection};
@@ -57,7 +59,7 @@ pub mod unix {
 }
 
 #[cfg(target_family = "windows")]
-pub mod windows {
+mod windows {
     use std::env::var;
     use std::path::PathBuf;
     use subprocess::Popen;
