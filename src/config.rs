@@ -111,10 +111,10 @@ impl Config {
         ]);
 
         if let Some(session) = preferences.get_mut("session") {
-            let session = session
+            session
                 .as_object_mut()
-                .ok_or(Error::NotAJsonObject("session"))?;
-            session.extend(default_session);
+                .ok_or(Error::NotAJsonObject("session"))?
+                .extend(default_session);
         } else {
             preferences.insert("session".to_string(), Value::Object(default_session));
         }
