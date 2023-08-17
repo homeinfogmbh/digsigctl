@@ -24,16 +24,10 @@ pub fn chromium_default_preferences() -> Option<PathBuf> {
         .ok()
 }
 
-#[cfg(target_family = "unix")]
 pub fn await_chromium_shutdown() -> subprocess::Result<()> {
     stop_chromium()?;
     while chromium_is_running()? {}
     Ok(())
-}
-
-#[cfg(target_family = "windows")]
-pub fn await_chromium_shutdown() -> subprocess::Result<Popen> {
-    todo!()
 }
 
 #[cfg(target_family = "unix")]
@@ -67,7 +61,7 @@ pub fn chromium_is_running() -> subprocess::Result<bool> {
 }
 
 #[cfg(target_family = "windows")]
-pub fn chromium_is_running() -> subprocess::Result<Popen> {
+pub fn chromium_is_running() -> subprocess::Result<bool> {
     todo!()
 }
 
