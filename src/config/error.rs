@@ -8,6 +8,7 @@ pub enum Error {
     IoError(std::io::Error),
     NotAJsonObject(&'static str),
     SerdeError(serde_json::Error),
+    SubprocessFailed,
 }
 
 impl Display for Error {
@@ -19,6 +20,7 @@ impl Display for Error {
             Self::IoError(error) => <std::io::Error as Display>::fmt(error, f),
             Self::NotAJsonObject(key) => write!(f, "not a JSON object: {key}"),
             Self::SerdeError(error) => <serde_json::Error as Display>::fmt(error, f),
+            Self::SubprocessFailed => write!(f, "Subprocess failed"),
         }
     }
 }
