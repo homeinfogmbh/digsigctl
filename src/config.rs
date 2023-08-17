@@ -102,17 +102,17 @@ impl Config {
             .as_object_mut()
             .ok_or(Error::NotAJsonObject("preferences"))?;
 
+        let mut default_session = Map::new();
+        default_session.insert("startup_urls".to_string(), vec![self.url.clone()].into());
+        default_session.insert("restore_on_startup".to_string(), 4.into());
+
         if let Some(session) = preferences.get_mut("session") {
             let session = session
                 .as_object_mut()
                 .ok_or(Error::NotAJsonObject("session"))?;
-            session.insert("startup_urls".to_string(), vec![self.url.clone()].into());
-            session.insert("restore_on_startup".to_string(), 4.into());
+            session.extend(default_session);
         } else {
-            let mut session = Map::new();
-            session.insert("startup_urls".to_string(), vec![self.url.clone()].into());
-            session.insert("restore_on_startup".to_string(), 4.into());
-            preferences.insert("session".to_string(), Value::Object(session));
+            preferences.insert("session".to_string(), Value::Object(default_session));
         }
 
         save(&filename, &value)
