@@ -130,6 +130,7 @@ fn save(filename: impl AsRef<Path>, value: &Value) -> Result<(), Error> {
     Ok(OpenOptions::new()
         .write(true)
         .create(true)
+        .truncate(true)
         .open(filename)?
         .write_all(serde_json::to_string(value)?.as_bytes())?)
 }
