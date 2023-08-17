@@ -102,9 +102,13 @@ impl Config {
             .as_object_mut()
             .ok_or(Error::NotAJsonObject("preferences"))?;
 
-        let mut default_session = Map::new();
-        default_session.insert("startup_urls".to_string(), vec![self.url.clone()].into());
-        default_session.insert("restore_on_startup".to_string(), 4.into());
+        let default_session = Map::from_iter([
+            (
+                "startup_urls".to_string(),
+                Value::Array(vec![Value::String(self.url.clone())]),
+            ),
+            ("restore_on_startup".to_string(), Value::Number(4.into())),
+        ]);
 
         if let Some(session) = preferences.get_mut("session") {
             let session = session
