@@ -4,21 +4,21 @@ use std::fmt::{Display, Formatter};
 #[allow(clippy::enum_variant_names)]
 #[derive(Debug)]
 pub enum Error {
-    SerdeError(serde_json::Error),
-    IoError(std::io::Error),
     ChromiumDefaultPreferencesNotFound,
+    IoError(std::io::Error),
     NotAJsonObject(&'static str),
+    SerdeError(serde_json::Error),
 }
 
 impl Display for Error {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::SerdeError(error) => <serde_json::Error as Display>::fmt(error, f),
-            Self::IoError(error) => <std::io::Error as Display>::fmt(error, f),
             Self::ChromiumDefaultPreferencesNotFound => {
                 write!(f, "Chrome / Chromium default preferences not found")
             }
+            Self::IoError(error) => <std::io::Error as Display>::fmt(error, f),
             Self::NotAJsonObject(key) => write!(f, "not a JSON object: {key}"),
+            Self::SerdeError(error) => <serde_json::Error as Display>::fmt(error, f),
         }
     }
 }
