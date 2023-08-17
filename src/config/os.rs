@@ -3,7 +3,7 @@ use home::home_dir;
 #[cfg(target_family = "windows")]
 use std::env::var;
 use std::path::PathBuf;
-use subprocess::{Popen, PopenConfig, Redirection};
+use subprocess::{ExitStatus, Popen, PopenConfig, Redirection};
 
 #[cfg(target_family = "unix")]
 const CHROMIUM_DEFAULT_PREFERENCES: &str = ".config/chromium/Default/Preferences";
@@ -25,9 +25,21 @@ pub fn chromium_default_preferences() -> Option<PathBuf> {
 }
 
 #[cfg(target_family = "unix")]
-pub fn reload() -> subprocess::Result<Popen> {
+pub fn await_chromium_shutdown() -> subprocess::Result<()> {
+    stop_chromium()?;
+    while chromium_is_running()? {}
+    Ok(())
+}
+
+#[cfg(target_family = "windows")]
+pub fn await_chromium_shutdown() -> subprocess::Result<Popen> {
+    todo!()
+}
+
+#[cfg(target_family = "unix")]
+pub fn stop_chromium() -> subprocess::Result<Popen> {
     Popen::create(
-        &["systemctl", "restart", "chromium.service"],
+        &["systemctl", "stop", "chromium.service"],
         PopenConfig {
             stdout: Redirection::None,
             detached: false,
@@ -37,6 +49,41 @@ pub fn reload() -> subprocess::Result<Popen> {
 }
 
 #[cfg(target_family = "windows")]
-pub fn reload() -> subprocess::Result<Popen> {
+pub fn stop_chromium() -> subprocess::Result<Popen> {
+    todo!()
+}
+
+#[cfg(target_family = "unix")]
+pub fn chromium_is_running() -> subprocess::Result<bool> {
+    Popen::create(
+        &["systemctl", "status", "chromium.service"],
+        PopenConfig {
+            stdout: Redirection::None,
+            detached: false,
+            ..Default::default()
+        },
+    )
+    .map(|popen| popen.exit_status().unwrap_or(ExitStatus::Exited(255)) == ExitStatus::Exited(0))
+}
+
+#[cfg(target_family = "windows")]
+pub fn chromium_is_running() -> subprocess::Result<Popen> {
+    todo!()
+}
+
+#[cfg(target_family = "unix")]
+pub fn start_chromium() -> subprocess::Result<Popen> {
+    Popen::create(
+        &["systemctl", "start", "chromium.service"],
+        PopenConfig {
+            stdout: Redirection::None,
+            detached: false,
+            ..Default::default()
+        },
+    )
+}
+
+#[cfg(target_family = "windows")]
+pub fn start_chromium() -> subprocess::Result<Popen> {
     todo!()
 }

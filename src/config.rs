@@ -2,7 +2,7 @@ mod error;
 mod os;
 
 pub use error::Error;
-pub use os::{chromium_default_preferences, reload};
+pub use os::{await_chromium_shutdown, chromium_default_preferences, start_chromium};
 use rocket::serde::json::serde_json::Map;
 use rocket::serde::json::{serde_json, Value};
 use serde::Deserialize;
@@ -27,9 +27,14 @@ impl Config {
     /// # Errors
     /// Returns an [`digsigctl::config::Error`] if the configuration could not be applied
     pub fn apply(&self) -> Result<(), anyhow::Error> {
+        await_chromium_shutdown()?;
         self.update()?;
 
-        if reload()?.exit_status().unwrap_or(ExitStatus::Exited(1)) != ExitStatus::Exited(0) {
+        if start_chromium()?
+            .exit_status()
+            .unwrap_or(ExitStatus::Exited(255))
+            != ExitStatus::Exited(0)
+        {
             return Err(Error::SubprocessFailed.into());
         }
 
