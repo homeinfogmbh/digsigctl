@@ -1,9 +1,9 @@
-pub fn await_chromium_shutdown() -> subprocess::Result<()> {
-    #[cfg(target_family = "unix")]
-    use unix::{chromium_is_running, stop_chromium};
-    #[cfg(target_family = "windows")]
-    use windows::{chromium_is_running, stop_chromium};
+#[cfg(target_family = "unix")]
+use unix::{chromium_is_running, stop_chromium};
+#[cfg(target_family = "windows")]
+use windows::{chromium_is_running, stop_chromium};
 
+pub fn await_chromium_shutdown() -> subprocess::Result<()> {
     stop_chromium()?;
     while chromium_is_running()? {}
     Ok(())
