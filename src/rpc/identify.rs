@@ -18,19 +18,19 @@ pub mod unix {
     use subprocess::{Popen, PopenConfig, Redirection};
 
     const ETC_HOSTNAME: &str = "/etc/hostname";
-    const XMESSAGE_TIMEOUT_SEC: u8 = 15;
+    const X_MESSAGE_TIMEOUT_SEC: u8 = 15;
 
     pub fn display_hostname() -> Result {
         read_to_string(ETC_HOSTNAME).map_or_else(
             |error| Result::Error(error.to_string().into()),
             |hostname| {
-                xmessage(hostname.trim(), XMESSAGE_TIMEOUT_SEC)
+                x_message(hostname.trim(), X_MESSAGE_TIMEOUT_SEC)
                     .map_or_else(std::convert::Into::into, |_| Result::Success(Box::new(())))
             },
         )
     }
 
-    fn xmessage(text: &str, timeout: u8) -> subprocess::Result<Popen> {
+    fn x_message(text: &str, timeout: u8) -> subprocess::Result<Popen> {
         Popen::create(
             &[
                 "xmessage",
