@@ -22,6 +22,7 @@ mod unix {
     pub fn chromium_default_preferences() -> Option<PathBuf> {
         home_dir().map(|home| home.join(CHROMIUM_DEFAULT_PREFERENCES))
     }
+
     pub fn stop_chromium() -> subprocess::Result<Popen> {
         Popen::create(
             &["systemctl", "stop", "chromium.service"],
