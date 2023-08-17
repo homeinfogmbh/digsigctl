@@ -1,5 +1,6 @@
 #[cfg(target_family = "unix")]
 use home::home_dir;
+use rocket::serde::json::serde_json::Map;
 use rocket::serde::json::{serde_json, Value};
 use serde::Deserialize;
 #[cfg(target_family = "windows")]
@@ -36,7 +37,6 @@ pub enum Error {
     IoError(std::io::Error),
     ChromiumDefaultPreferencesNotFound,
     NotAJsonObject(&'static str),
-    KeyNotFound(&'static str),
 }
 
 impl Display for Error {
@@ -48,7 +48,6 @@ impl Display for Error {
                 write!(f, "Chrome / Chromium default preferences not found")
             }
             Self::NotAJsonObject(key) => write!(f, "not a JSON object: {key}"),
-            Self::KeyNotFound(key) => write!(f, "JSON key not found: {key}"),
         }
     }
 }
@@ -99,14 +98,22 @@ impl Config {
         let filename =
             chromium_default_preferences().ok_or(Error::ChromiumDefaultPreferencesNotFound)?;
         let mut value = load(&filename)?;
-        value
+        let preferences = value
             .as_object_mut()
-            .ok_or(Error::NotAJsonObject("preferences"))?
-            .get_mut("session")
-            .ok_or(Error::KeyNotFound("session"))?
-            .as_object_mut()
-            .ok_or(Error::NotAJsonObject("session"))?
-            .insert("startup_urls".to_string(), vec![self.url.clone()].into());
+            .ok_or(Error::NotAJsonObject("preferences"))?;
+
+        if let Some(session) = preferences.get_mut("session") {
+            session
+                .as_object_mut()
+                .ok_or(Error::NotAJsonObject("session"))?
+                .insert("startup_urls".to_string(), vec![self.url.clone()].into());
+        } else {
+            let mut session = Map::new();
+            session.insert("startup_urls".to_string(), vec![self.url.clone()].into());
+            session.insert("restore_on_startup".to_string(), 4.into());
+            preferences.insert("session".to_string(), Value::Object(session));
+        }
+
         save(&filename, &value)
     }
 }
