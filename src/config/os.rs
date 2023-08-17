@@ -9,7 +9,7 @@ use subprocess::{ExitStatus, Popen, PopenConfig, Redirection};
 const CHROMIUM_DEFAULT_PREFERENCES: &str = ".config/chromium/Default/Preferences";
 
 #[cfg(target_family = "windows")]
-const CHROMIUM_DEFAULT_PREFERENCES: &str = r"Google\Chrome\User Data\Default";
+const CHROMIUM_DEFAULT_PREFERENCES: &str = r"Google\Chrome\User Data\Default\Preferences";
 
 #[cfg(target_family = "unix")]
 pub fn chromium_default_preferences() -> Option<PathBuf> {
