@@ -44,3 +44,9 @@ impl From<serde_json::Error> for Error {
         Self::SerdeError(error)
     }
 }
+
+impl From<&'static str> for Error {
+    fn from(key: &'static str) -> Self {
+        Self::NotAJsonObject(key)
+    }
+}
