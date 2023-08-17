@@ -103,10 +103,11 @@ impl Config {
             .ok_or(Error::NotAJsonObject("preferences"))?;
 
         if let Some(session) = preferences.get_mut("session") {
-            session
+            let session = session
                 .as_object_mut()
-                .ok_or(Error::NotAJsonObject("session"))?
-                .insert("startup_urls".to_string(), vec![self.url.clone()].into());
+                .ok_or(Error::NotAJsonObject("session"))?;
+            session.insert("startup_urls".to_string(), vec![self.url.clone()].into());
+            session.insert("restore_on_startup".to_string(), 4.into());
         } else {
             let mut session = Map::new();
             session.insert("startup_urls".to_string(), vec![self.url.clone()].into());
