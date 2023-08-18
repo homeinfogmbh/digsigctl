@@ -28,7 +28,7 @@ impl Config {
     /// Returns an [`digsigctl::config::Error`] if the configuration could not be applied
     pub fn apply(&self) -> Result<(), anyhow::Error> {
         await_chromium_shutdown()?;
-        self.update()?;
+        self.update_chromium_preferences()?;
 
         if start_chromium()?
             .exit_status()
@@ -41,7 +41,7 @@ impl Config {
         Ok(())
     }
 
-    fn update(&self) -> Result<(), Error> {
+    fn update_chromium_preferences(&self) -> Result<(), Error> {
         let filename =
             chromium_default_preferences().ok_or(Error::ChromiumDefaultPreferencesNotFound)?;
         let mut value = load(&filename)?;
