@@ -3,7 +3,7 @@ mod identify;
 mod reboot;
 mod result;
 
-use crate::config::chromium_default_preferences;
+use crate::config::default_preferences_file;
 use crate::rpc::beep::beep;
 use crate::rpc::identify::identify;
 use crate::rpc::reboot::reboot;
@@ -31,8 +31,7 @@ impl Command {
             Self::Reboot(delay) => reboot(*delay),
             Self::Identify => identify(),
             Self::ConfigFile => Result::Success(Box::new(
-                chromium_default_preferences()
-                    .and_then(|path| path.to_str().map(ToString::to_string)),
+                default_preferences_file().and_then(|path| path.to_str().map(ToString::to_string)),
             )),
         }
     }

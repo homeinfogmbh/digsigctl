@@ -2,7 +2,7 @@ mod error;
 mod os;
 
 pub use error::Error;
-pub use os::{await_chromium_shutdown, chromium_default_preferences, start_chromium};
+pub use os::{await_webbrowser_shutdown, default_preferences_file, start_webbrowser};
 use rocket::serde::json::serde_json::Map;
 use rocket::serde::json::{serde_json, Value};
 use serde::Deserialize;
@@ -27,10 +27,10 @@ impl Config {
     /// # Errors
     /// Returns an [`digsigctl::config::Error`] if the configuration could not be applied
     pub fn apply(&self) -> Result<(), anyhow::Error> {
-        await_chromium_shutdown()?;
+        await_webbrowser_shutdown()?;
         self.update_chromium_preferences()?;
 
-        if start_chromium()?
+        if start_webbrowser()?
             .exit_status()
             .unwrap_or(ExitStatus::Exited(255))
             != ExitStatus::Exited(0)
@@ -42,8 +42,7 @@ impl Config {
     }
 
     fn update_chromium_preferences(&self) -> Result<(), Error> {
-        let filename =
-            chromium_default_preferences().ok_or(Error::ChromiumDefaultPreferencesNotFound)?;
+        let filename = default_preferences_file().ok_or(Error::DefaultPreferencesNotFound)?;
         let mut value = load(&filename)?;
         let preferences = value
             .as_object_mut()

@@ -1,13 +1,15 @@
 #[cfg(target_family = "unix")]
-pub use unix::{chromium_default_preferences, chromium_is_running, start_chromium, stop_chromium};
+pub use unix::{
+    default_preferences_file, start_webbrowser, stop_webbrowser, webbrowser_is_running,
+};
 #[cfg(target_family = "windows")]
 pub use windows::{
-    chromium_default_preferences, chromium_is_running, start_chromium, stop_chromium,
+    default_preferences_file, start_webbrowser, stop_webbrowser, webbrowser_is_running,
 };
 
-pub fn await_chromium_shutdown() -> subprocess::Result<()> {
-    stop_chromium()?;
-    while chromium_is_running()? {}
+pub fn await_webbrowser_shutdown() -> subprocess::Result<()> {
+    stop_webbrowser()?;
+    while webbrowser_is_running()? {}
     Ok(())
 }
 
@@ -19,11 +21,11 @@ mod unix {
 
     const CHROMIUM_DEFAULT_PREFERENCES: &str = ".config/chromium/Default/Preferences";
 
-    pub fn chromium_default_preferences() -> Option<PathBuf> {
+    pub fn default_preferences_file() -> Option<PathBuf> {
         home_dir().map(|home| home.join(CHROMIUM_DEFAULT_PREFERENCES))
     }
 
-    pub fn stop_chromium() -> subprocess::Result<Popen> {
+    pub fn stop_webbrowser() -> subprocess::Result<Popen> {
         Popen::create(
             &["systemctl", "stop", "chromium.service"],
             PopenConfig {
@@ -34,7 +36,7 @@ mod unix {
         )
     }
 
-    pub fn chromium_is_running() -> subprocess::Result<bool> {
+    pub fn webbrowser_is_running() -> subprocess::Result<bool> {
         Popen::create(
             &["systemctl", "status", "chromium.service"],
             PopenConfig {
@@ -48,7 +50,7 @@ mod unix {
         })
     }
 
-    pub fn start_chromium() -> subprocess::Result<Popen> {
+    pub fn start_webbrowser() -> subprocess::Result<Popen> {
         Popen::create(
             &["systemctl", "start", "chromium.service"],
             PopenConfig {
@@ -66,24 +68,24 @@ mod windows {
     use std::path::PathBuf;
     use subprocess::Popen;
 
-    const CHROMIUM_DEFAULT_PREFERENCES: &str = r"Google\Chrome\User Data\Default\Preferences";
+    const CHROME_DEFAULT_PREFERENCES: &str = r"Google\Chrome\User Data\Default\Preferences";
 
-    pub fn chromium_default_preferences() -> Option<PathBuf> {
+    pub fn default_preferences_file() -> Option<PathBuf> {
         var("%LOCALAPPDATA%")
             .map(PathBuf::from)
-            .map(|home| home.join(CHROMIUM_DEFAULT_PREFERENCES))
+            .map(|home| home.join(CHROME_DEFAULT_PREFERENCES))
             .ok()
     }
 
-    pub fn stop_chromium() -> subprocess::Result<Popen> {
+    pub fn stop_webbrowser() -> subprocess::Result<Popen> {
         todo!()
     }
 
-    pub fn chromium_is_running() -> subprocess::Result<bool> {
+    pub fn webbrowser_is_running() -> subprocess::Result<bool> {
         todo!()
     }
 
-    pub fn start_chromium() -> subprocess::Result<Popen> {
+    pub fn start_webbrowser() -> subprocess::Result<Popen> {
         todo!()
     }
 }
