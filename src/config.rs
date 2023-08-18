@@ -49,24 +49,26 @@ impl Config {
             .as_object_mut()
             .ok_or(Error::NotAJsonObject("preferences"))?;
 
-        let default_session = Map::from_iter([
+        if let Some(session) = preferences.get_mut("session") {
+            session
+                .as_object_mut()
+                .ok_or(Error::NotAJsonObject("session"))?
+                .extend(self.default_session());
+        } else {
+            preferences.insert("session".to_string(), Value::Object(self.default_session()));
+        }
+
+        save(&filename, &value)
+    }
+
+    fn default_session(&self) -> Map<String, Value> {
+        Map::from_iter([
             (
                 "startup_urls".to_string(),
                 Value::Array(vec![Value::String(self.url.clone())]),
             ),
             ("restore_on_startup".to_string(), Value::Number(4.into())),
-        ]);
-
-        if let Some(session) = preferences.get_mut("session") {
-            session
-                .as_object_mut()
-                .ok_or(Error::NotAJsonObject("session"))?
-                .extend(default_session);
-        } else {
-            preferences.insert("session".to_string(), Value::Object(default_session));
-        }
-
-        save(&filename, &value)
+        ])
     }
 }
 
