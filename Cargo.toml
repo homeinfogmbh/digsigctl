@@ -13,7 +13,6 @@ either = "1.9.0"
 erased-serde = "0.3.29"
 ipnetwork = { version = "0.20.0", default-features = false }
 local-ip-address = "0.5.4"
-proc-cpuinfo = "0.1.5"
 rocket = { version = "0.5.0-rc.3", features = ["json"] }
 serde = { version = "1.0.183", features = ["derive"] }
 subprocess = "0.2.9"
@@ -22,3 +21,4 @@ system_shutdown = "4.0.1"
 [target."cfg(unix)".dependencies]
 beep-evdev = { version = "0.2.0", features = ["serde"] }
 home = "0.5.5"
+proc-cpuinfo = "0.1.5"
