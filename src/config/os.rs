@@ -50,19 +50,18 @@ mod unix {
         })
     }
 
-    pub fn start_webbrowser() -> subprocess::Result<ExitStatus> {
-        if let Ok(popen) = Popen::create(
+    pub fn start_webbrowser() -> bool {
+        Popen::create(
             &["systemctl", "start", "chromium.service"],
             PopenConfig {
                 stdout: Redirection::None,
                 detached: false,
                 ..Default::default()
             },
-        ) {
+        )
+        .map_or(false, |popen| {
             popen.exit_status().unwrap_or(ExitStatus::Exited(255)) == ExitStatus::Exited(0)
-        } else {
-            false
-        }
+        })
     }
 }
 
