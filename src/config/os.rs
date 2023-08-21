@@ -1,13 +1,13 @@
 #[cfg(target_family = "unix")]
-pub use unix::{
-    default_preferences_file, start_webbrowser, stop_webbrowser, webbrowser_is_running,
-};
+pub use unix::{default_preferences_file, start_webbrowser};
+#[cfg(target_family = "unix")]
+use unix::{stop_webbrowser, webbrowser_is_running};
 #[cfg(target_family = "windows")]
-pub use windows::{
-    default_preferences_file, start_webbrowser, stop_webbrowser, webbrowser_is_running,
-};
+pub use windows::{default_preferences_file, start_webbrowser};
+#[cfg(target_family = "windows")]
+use windows::{stop_webbrowser, webbrowser_is_running};
 
-pub fn await_webbrowser_shutdown() -> subprocess::Result<()> {
+pub fn await_webbrowser_shutdown() -> anyhow::Result<()> {
     stop_webbrowser()?;
     while webbrowser_is_running()? {}
     Ok(())
@@ -50,15 +50,19 @@ mod unix {
         })
     }
 
-    pub fn start_webbrowser() -> subprocess::Result<Popen> {
-        Popen::create(
+    pub fn start_webbrowser() -> subprocess::Result<ExitStatus> {
+        if let Ok(popen) = Popen::create(
             &["systemctl", "start", "chromium.service"],
             PopenConfig {
                 stdout: Redirection::None,
                 detached: false,
                 ..Default::default()
             },
-        )
+        ) {
+            popen.exit_status().unwrap_or(ExitStatus::Exited(255)) == ExitStatus::Exited(0)
+        } else {
+            false
+        }
     }
 }
 
@@ -66,7 +70,7 @@ mod unix {
 mod windows {
     use std::env::var;
     use std::path::PathBuf;
-    use subprocess::Popen;
+    use sysinfo::{ProcessExt, SystemExt};
 
     const CHROME_DEFAULT_PREFERENCES: &str = r"Google\Chrome\User Data\Default\Preferences";
 
@@ -77,15 +81,22 @@ mod windows {
             .ok()
     }
 
-    pub fn stop_webbrowser() -> subprocess::Result<Popen> {
-        todo!()
+    pub fn stop_webbrowser() -> anyhow::Result<()> {
+        for process in sysinfo::System::new().processes_by_name("Google Chrome") {
+            process.kill();
+        }
+
+        Ok(())
     }
 
-    pub fn webbrowser_is_running() -> subprocess::Result<bool> {
-        todo!()
+    pub fn webbrowser_is_running() -> anyhow::Result<bool> {
+        Ok(!sysinfo::System::new()
+            .processes_by_name("Google Chrome")
+            .collect::<Vec<_>>()
+            .is_empty())
     }
 
-    pub fn start_webbrowser() -> subprocess::Result<Popen> {
-        todo!()
+    pub fn start_webbrowser() -> bool {
+        true
     }
 }

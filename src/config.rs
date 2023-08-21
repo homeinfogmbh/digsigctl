@@ -10,7 +10,6 @@ use std::fmt::Debug;
 use std::fs::{read_to_string, OpenOptions};
 use std::io::Write;
 use std::path::Path;
-use subprocess::ExitStatus;
 
 #[derive(Debug, Deserialize, Eq, PartialEq)]
 pub struct Config {
@@ -30,15 +29,11 @@ impl Config {
         await_webbrowser_shutdown()?;
         self.update_chromium_preferences()?;
 
-        if start_webbrowser()?
-            .exit_status()
-            .unwrap_or(ExitStatus::Exited(255))
-            != ExitStatus::Exited(0)
-        {
-            return Err(Error::SubprocessFailed.into());
+        if start_webbrowser() {
+            return Ok(());
         }
 
-        Ok(())
+        Err(Error::SubprocessFailed.into())
     }
 
     fn update_chromium_preferences(&self) -> Result<(), Error> {
