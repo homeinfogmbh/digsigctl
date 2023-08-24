@@ -41,13 +41,13 @@ impl ChromiumPreferences {
     pub fn update_or_init_session(&mut self, url: &str) -> Result<(), Error> {
         self.update_or_insert(
             "session",
-            Map::from_iter([
+            &[
                 (
                     "startup_urls".to_string(),
                     Value::Array(vec![Value::String(url.to_string())]),
                 ),
                 ("restore_on_startup".to_string(), Value::Number(4.into())),
-            ]),
+            ],
         )
     }
 
@@ -56,10 +56,7 @@ impl ChromiumPreferences {
     /// # Errors
     /// Returns an `[digsigctl::config::error::Error]` if the preferences file is corrupted
     pub fn update_or_init_profile(&mut self) -> Result<(), Error> {
-        self.update_or_insert(
-            "profile",
-            Map::from_iter([("exit_type".to_string(), "Normal".into())]),
-        )
+        self.update_or_insert("profile", &[("exit_type".to_string(), "Normal".into())])
     }
 
     /// Updates the _sessions_ object or initializes it, if it is not present
@@ -67,14 +64,18 @@ impl ChromiumPreferences {
     /// # Errors
     /// Returns an `[digsigctl::config::error::Error]` if the preferences file is corrupted
     pub fn update_or_init_sessions(&mut self) -> Result<(), Error> {
-        self.update_or_insert(
-            "sessions",
-            Map::from_iter([("session_data_status".to_string(), 3.into())]),
-        )
+        self.update_or_insert("sessions", &[("session_data_status".to_string(), 3.into())])
     }
 
-    fn update_or_insert(&mut self, key: &str, value: Map<String, Value>) -> Result<(), Error> {
-        update_or_insert(self.preferences()?, key, value);
+    fn update_or_insert(&mut self, key: &str, values: &[(String, Value)]) -> Result<(), Error> {
+        update_or_insert(
+            self.preferences()?,
+            key,
+            values
+                .iter()
+                .map(|(key, value)| (key.clone(), value.clone()))
+                .collect::<Map<_, _>>(),
+        );
         Ok(())
     }
 
