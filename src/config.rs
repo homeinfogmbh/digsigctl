@@ -49,6 +49,7 @@ impl Config {
     }
 
     fn update_or_init_session(&self, preferences: &mut Map<String, Value>) {
+        #[allow(clippy::option_if_let_else)]
         if let Some(session) = preferences
             .get_mut("session")
             .and_then(Value::as_object_mut)
@@ -60,6 +61,7 @@ impl Config {
     }
 
     fn update_or_init_profile(preferences: &mut Map<String, Value>) {
+        #[allow(clippy::option_if_let_else)]
         if let Some(profile) = preferences
             .get_mut("profile")
             .and_then(Value::as_object_mut)
@@ -74,6 +76,7 @@ impl Config {
     }
 
     fn update_or_init_sessions(preferences: &mut Map<String, Value>) {
+        #[allow(clippy::option_if_let_else)]
         if let Some(sessions) = preferences
             .get_mut("sessions")
             .and_then(Value::as_object_mut)
