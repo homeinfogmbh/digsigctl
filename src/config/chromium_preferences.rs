@@ -39,7 +39,16 @@ impl ChromiumPreferences {
     /// # Errors
     /// Returns an `[digsigctl::config::error::Error]` if the preferences file is corrupted
     pub fn update_or_init_session(&mut self, url: &str) -> Result<(), Error> {
-        self.update_or_insert("session", default_session(url))
+        self.update_or_insert(
+            "session",
+            Map::from_iter([
+                (
+                    "startup_urls".to_string(),
+                    Value::Array(vec![Value::String(url.to_string())]),
+                ),
+                ("restore_on_startup".to_string(), Value::Number(4.into())),
+            ]),
+        )
     }
 
     /// Updates the _profile_ object or initializes it, if it is not present
@@ -47,7 +56,10 @@ impl ChromiumPreferences {
     /// # Errors
     /// Returns an `[digsigctl::config::error::Error]` if the preferences file is corrupted
     pub fn update_or_init_profile(&mut self) -> Result<(), Error> {
-        self.update_or_insert("profile", default_profile())
+        self.update_or_insert(
+            "profile",
+            Map::from_iter([("exit_type".to_string(), "Normal".into())]),
+        )
     }
 
     /// Updates the _sessions_ object or initializes it, if it is not present
@@ -55,7 +67,10 @@ impl ChromiumPreferences {
     /// # Errors
     /// Returns an `[digsigctl::config::error::Error]` if the preferences file is corrupted
     pub fn update_or_init_sessions(&mut self) -> Result<(), Error> {
-        self.update_or_insert("sessions", default_sessions())
+        self.update_or_insert(
+            "sessions",
+            Map::from_iter([("session_data_status".to_string(), 3.into())]),
+        )
     }
 
     fn update_or_insert(&mut self, key: &str, value: Map<String, Value>) -> Result<(), Error> {
@@ -78,22 +93,4 @@ impl ChromiumPreferences {
             .as_object_mut()
             .ok_or(Error::NotAJsonObject("preferences"))
     }
-}
-
-fn default_session(url: &str) -> Map<String, Value> {
-    Map::from_iter([
-        (
-            "startup_urls".to_string(),
-            Value::Array(vec![Value::String(url.to_string())]),
-        ),
-        ("restore_on_startup".to_string(), Value::Number(4.into())),
-    ])
-}
-
-fn default_profile() -> Map<String, Value> {
-    Map::from_iter([("exit_type".to_string(), "Normal".into())])
-}
-
-fn default_sessions() -> Map<String, Value> {
-    Map::from_iter([("session_data_status".to_string(), 3.into())])
 }
