@@ -42,7 +42,13 @@ impl Config {
         let preferences = value
             .as_object_mut()
             .ok_or(Error::NotAJsonObject("preferences"))?;
+        self.update_or_init_session(preferences)?;
+        Self::update_or_init_profile(preferences)?;
+        Self::update_or_init_sessions(preferences)?;
+        save(&filename, &value)
+    }
 
+    fn update_or_init_session(&self, preferences: &mut Map<String, Value>) -> Result<(), Error> {
         if let Some(session) = preferences.get_mut("session") {
             session
                 .as_object_mut()
@@ -52,7 +58,39 @@ impl Config {
             preferences.insert("session".to_string(), Value::Object(self.default_session()));
         }
 
-        save(&filename, &value)
+        Ok(())
+    }
+
+    fn update_or_init_profile(preferences: &mut Map<String, Value>) -> Result<(), Error> {
+        if let Some(profile) = preferences.get_mut("profile") {
+            profile
+                .as_object_mut()
+                .ok_or(Error::NotAJsonObject("profile"))?
+                .extend(Self::default_profile());
+        } else {
+            preferences.insert(
+                "profile".to_string(),
+                Value::Object(Self::default_profile()),
+            );
+        }
+
+        Ok(())
+    }
+
+    fn update_or_init_sessions(preferences: &mut Map<String, Value>) -> Result<(), Error> {
+        if let Some(sessions) = preferences.get_mut("sessions") {
+            sessions
+                .as_object_mut()
+                .ok_or(Error::NotAJsonObject("sessions"))?
+                .extend(Self::default_sessions());
+        } else {
+            preferences.insert(
+                "sessions".to_string(),
+                Value::Object(Self::default_sessions()),
+            );
+        }
+
+        Ok(())
     }
 
     fn default_session(&self) -> Map<String, Value> {
@@ -63,6 +101,14 @@ impl Config {
             ),
             ("restore_on_startup".to_string(), Value::Number(4.into())),
         ])
+    }
+
+    fn default_profile() -> Map<String, Value> {
+        Map::from_iter([("exit_type".to_string(), "Normal".into())])
+    }
+
+    fn default_sessions() -> Map<String, Value> {
+        Map::from_iter([("session_data_status".to_string(), 3.into())])
     }
 }
 
