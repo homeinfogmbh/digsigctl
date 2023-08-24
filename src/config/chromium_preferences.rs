@@ -39,7 +39,6 @@ impl ChromiumPreferences {
     /// # Errors
     /// Returns an `[digsigctl::config::error::Error]` if the preferences file is corrupted
     pub fn update_or_init_session(&mut self, url: &str) -> Result<(), Error> {
-        #[allow(clippy::option_if_let_else)]
         if let Some(session) = self
             .preferences()?
             .get_mut("session")
@@ -59,7 +58,6 @@ impl ChromiumPreferences {
     /// # Errors
     /// Returns an `[digsigctl::config::error::Error]` if the preferences file is corrupted
     pub fn update_or_init_profile(&mut self) -> Result<(), Error> {
-        #[allow(clippy::option_if_let_else)]
         if let Some(profile) = self
             .preferences()?
             .get_mut("profile")
@@ -79,7 +77,6 @@ impl ChromiumPreferences {
     /// # Errors
     /// Returns an `[digsigctl::config::error::Error]` if the preferences file is corrupted
     pub fn update_or_init_sessions(&mut self) -> Result<(), Error> {
-        #[allow(clippy::option_if_let_else)]
         if let Some(sessions) = self
             .preferences()?
             .get_mut("sessions")
