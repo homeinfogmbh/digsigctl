@@ -74,17 +74,7 @@ impl ChromiumPreferences {
     }
 
     fn update_or_insert(&mut self, key: &str, value: Map<String, Value>) -> Result<(), Error> {
-        if let Some(object) = self
-            .preferences()?
-            .get_mut(key)
-            .and_then(Value::as_object_mut)
-        {
-            object.extend(value);
-        } else {
-            self.preferences()?
-                .insert(key.to_string(), Value::Object(value));
-        }
-
+        update_or_insert(self.preferences()?, key, value);
         Ok(())
     }
 
@@ -92,5 +82,13 @@ impl ChromiumPreferences {
         self.0
             .as_object_mut()
             .ok_or(Error::NotAJsonObject("preferences"))
+    }
+}
+
+fn update_or_insert(parent: &mut Map<String, Value>, key: &str, value: Map<String, Value>) {
+    if let Some(object) = parent.get_mut(key).and_then(Value::as_object_mut) {
+        object.extend(value);
+    } else {
+        parent.insert(key.to_string(), Value::Object(value));
     }
 }
