@@ -4,31 +4,40 @@ use rocket::serde::json::{serde_json, Value};
 use std::convert::Into;
 use std::fs::{read_to_string, OpenOptions};
 use std::io::Write;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 use std::string::ToString;
 
-pub struct ChromiumPreferences {
-    filename: PathBuf,
-    value: Value,
-}
+/// Manage "Preferences" file of Chrome / Chromium webbrowsers
+pub struct ChromiumPreferences(Value);
 
 impl ChromiumPreferences {
+    /// Load preferences from the given file
+    ///
+    /// # Errors
+    /// Returns an `[digsigctl::config::error::Error]` if the file could not be read or deserialized
     pub fn load(filename: impl AsRef<Path>) -> Result<Self, Error> {
-        Ok(Self {
-            value: serde_json::from_str::<Value>(&read_to_string(filename.as_ref())?)?,
-            filename: filename.as_ref().into(),
-        })
+        Ok(Self(serde_json::from_str::<Value>(&read_to_string(
+            filename,
+        )?)?))
     }
 
-    pub fn save(&self) -> Result<(), Error> {
+    /// Saves preferences to the given file
+    ///
+    /// # Errors
+    /// Returns an `[digsigctl::config::error::Error]` if the file could not be written or serialized
+    pub fn save(&self, filename: impl AsRef<Path>) -> Result<(), Error> {
         Ok(OpenOptions::new()
             .write(true)
             .create(true)
             .truncate(true)
-            .open(&self.filename)?
-            .write_all(serde_json::to_string(&self.value)?.as_bytes())?)
+            .open(filename)?
+            .write_all(serde_json::to_string(&self.0)?.as_bytes())?)
     }
 
+    /// Updates the _session_ object or initializes it, if it is not present
+    ///
+    /// # Errors
+    /// Returns an `[digsigctl::config::error::Error]` if the preferences file is corrupted
     pub fn update_or_init_session(&mut self, url: &str) -> Result<(), Error> {
         #[allow(clippy::option_if_let_else)]
         if let Some(session) = self
@@ -45,6 +54,10 @@ impl ChromiumPreferences {
         Ok(())
     }
 
+    /// Updates the _profile_ object or initializes it, if it is not present
+    ///
+    /// # Errors
+    /// Returns an `[digsigctl::config::error::Error]` if the preferences file is corrupted
     pub fn update_or_init_profile(&mut self) -> Result<(), Error> {
         #[allow(clippy::option_if_let_else)]
         if let Some(profile) = self
@@ -61,6 +74,10 @@ impl ChromiumPreferences {
         Ok(())
     }
 
+    /// Updates the _sessions_ object or initializes it, if it is not present
+    ///
+    /// # Errors
+    /// Returns an `[digsigctl::config::error::Error]` if the preferences file is corrupted
     pub fn update_or_init_sessions(&mut self) -> Result<(), Error> {
         #[allow(clippy::option_if_let_else)]
         if let Some(sessions) = self
@@ -78,7 +95,7 @@ impl ChromiumPreferences {
     }
 
     fn preferences(&mut self) -> Result<&mut Map<String, Value>, Error> {
-        self.value
+        self.0
             .as_object_mut()
             .ok_or(Error::NotAJsonObject("preferences"))
     }

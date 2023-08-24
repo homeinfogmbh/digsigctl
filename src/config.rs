@@ -34,12 +34,11 @@ impl Config {
     }
 
     fn update_chromium_preferences(&self) -> Result<(), Error> {
-        let mut preferences = ChromiumPreferences::load(
-            default_preferences_file().ok_or(Error::DefaultPreferencesNotFound)?,
-        )?;
+        let filename = default_preferences_file().ok_or(Error::DefaultPreferencesNotFound)?;
+        let mut preferences = ChromiumPreferences::load(&filename)?;
         preferences.update_or_init_session(self.url.as_str())?;
         preferences.update_or_init_profile()?;
         preferences.update_or_init_sessions()?;
-        preferences.save()
+        preferences.save(filename)
     }
 }
