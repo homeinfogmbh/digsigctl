@@ -1,0 +1,12 @@
+[Unit]
+Description=Digital Signage Controller for DDB OS
+Requires=network-online.target
+After=network-online.target
+
+[Service]
+User=digsig
+Group=digsig
+ExecStart=/usr/bin/digsigctl
+
+[Install]
+WantedBy=multi-user.target
