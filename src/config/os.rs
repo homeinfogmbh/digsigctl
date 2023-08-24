@@ -27,7 +27,7 @@ mod unix {
 
     pub fn stop_webbrowser() -> subprocess::Result<Popen> {
         Popen::create(
-            &["systemctl", "stop", "chromium.service"],
+            &["sudo", "systemctl", "stop", "chromium.service"],
             PopenConfig {
                 stdout: Redirection::None,
                 detached: false,
@@ -52,7 +52,7 @@ mod unix {
 
     pub fn start_webbrowser() -> bool {
         Popen::create(
-            &["systemctl", "start", "chromium.service"],
+            &["sudo", "systemctl", "start", "chromium.service"],
             PopenConfig {
                 stdout: Redirection::None,
                 detached: false,
