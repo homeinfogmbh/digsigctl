@@ -39,18 +39,7 @@ impl ChromiumPreferences {
     /// # Errors
     /// Returns an `[digsigctl::config::error::Error]` if the preferences file is corrupted
     pub fn update_or_init_session(&mut self, url: &str) -> Result<(), Error> {
-        if let Some(session) = self
-            .preferences()?
-            .get_mut("session")
-            .and_then(Value::as_object_mut)
-        {
-            session.extend(default_session(url));
-        } else {
-            self.preferences()?
-                .insert("session".to_string(), Value::Object(default_session(url)));
-        }
-
-        Ok(())
+        self.update_or_insert("session", default_session(url))
     }
 
     /// Updates the _profile_ object or initializes it, if it is not present
@@ -58,18 +47,7 @@ impl ChromiumPreferences {
     /// # Errors
     /// Returns an `[digsigctl::config::error::Error]` if the preferences file is corrupted
     pub fn update_or_init_profile(&mut self) -> Result<(), Error> {
-        if let Some(profile) = self
-            .preferences()?
-            .get_mut("profile")
-            .and_then(Value::as_object_mut)
-        {
-            profile.extend(default_profile());
-        } else {
-            self.preferences()?
-                .insert("profile".to_string(), Value::Object(default_profile()));
-        }
-
-        Ok(())
+        self.update_or_insert("profile", default_profile())
     }
 
     /// Updates the _sessions_ object or initializes it, if it is not present
@@ -77,15 +55,19 @@ impl ChromiumPreferences {
     /// # Errors
     /// Returns an `[digsigctl::config::error::Error]` if the preferences file is corrupted
     pub fn update_or_init_sessions(&mut self) -> Result<(), Error> {
-        if let Some(sessions) = self
+        self.update_or_insert("sessions", default_sessions())
+    }
+
+    fn update_or_insert(&mut self, key: &str, value: Map<String, Value>) -> Result<(), Error> {
+        if let Some(object) = self
             .preferences()?
-            .get_mut("sessions")
+            .get_mut(key)
             .and_then(Value::as_object_mut)
         {
-            sessions.extend(default_sessions());
+            object.extend(value);
         } else {
             self.preferences()?
-                .insert("sessions".to_string(), Value::Object(default_sessions()));
+                .insert(key.to_string(), Value::Object(value));
         }
 
         Ok(())
