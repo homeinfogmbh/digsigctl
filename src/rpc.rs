@@ -2,14 +2,15 @@ mod beep;
 mod identify;
 mod reboot;
 mod result;
+pub mod web_browser;
 
-use crate::config::default_preferences_file;
-use crate::rpc::beep::beep;
-use crate::rpc::identify::identify;
-use crate::rpc::reboot::reboot;
+use beep::beep;
+use identify::identify;
+use reboot::reboot;
 pub use result::Result;
 use serde::Deserialize;
 use std::fmt::Debug;
+use web_browser::default_preferences_file;
 
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq)]
 pub enum Command {
@@ -21,6 +22,8 @@ pub enum Command {
     Identify,
     #[serde(rename = "configFile")]
     ConfigFile,
+    #[serde(rename = "restartWebBrowser")]
+    RestartWebBrowser,
 }
 
 impl Command {
@@ -33,6 +36,15 @@ impl Command {
             Self::ConfigFile => Result::Success(Box::new(
                 default_preferences_file().and_then(|path| path.to_str().map(ToString::to_string)),
             )),
+            Self::RestartWebBrowser => {
+                if let Ok(start_succeeded) = web_browser::restart() {
+                    if start_succeeded {
+                        return Result::Success(Box::new("Web browser restarted.".to_string()));
+                    }
+                }
+
+                Result::Error("Could not restart web browser.".into())
+            }
         }
     }
 }
