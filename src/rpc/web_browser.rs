@@ -1,3 +1,4 @@
+use subprocess::ExitStatus;
 #[cfg(target_family = "unix")]
 pub use unix::{default_preferences_file, is_running, start, stop};
 #[cfg(target_family = "windows")]
@@ -18,7 +19,7 @@ pub fn restart() -> anyhow::Result<bool> {
 mod unix {
     use home::home_dir;
     use std::path::PathBuf;
-    use subprocess::{ExitStatus, Popen, PopenConfig, Redirection};
+    use subprocess::{Popen, PopenConfig, Redirection};
 
     const CHROMIUM_DEFAULT_PREFERENCES: &str = ".config/chromium/Default/Preferences";
 
@@ -46,9 +47,7 @@ mod unix {
                 ..Default::default()
             },
         )
-        .map(|popen| {
-            popen.exit_status().unwrap_or(ExitStatus::Exited(255)) == ExitStatus::Exited(0)
-        })
+        .map(|popen| super::evaluate_exit_status_option(popen.exit_status()))
     }
 
     pub fn start() -> bool {
@@ -61,7 +60,7 @@ mod unix {
             },
         )
         .map_or(false, |popen| {
-            popen.exit_status().unwrap_or(ExitStatus::Exited(255)) == ExitStatus::Exited(0)
+            super::evaluate_exit_status_option(popen.exit_status())
         })
     }
 }
@@ -99,4 +98,33 @@ mod windows {
     pub fn start() -> bool {
         todo!()
     }
+}
+
+fn evaluate_exit_status_option(exit_status: Option<ExitStatus>) -> bool {
+    exit_status.map_or_else(
+        || {
+            eprintln!("Subprocess did not exit.");
+            false
+        },
+        evaluate_exit_status,
+    )
+}
+
+fn evaluate_exit_status(exit_status: ExitStatus) -> bool {
+    match exit_status {
+        ExitStatus::Exited(exit_code) => {
+            eprintln!("Subprocess exited with: {exit_code}");
+        }
+        ExitStatus::Signaled(exit_code) => {
+            eprintln!("Subprocess signalled: {exit_code}");
+        }
+        ExitStatus::Other(exit_code) => {
+            eprintln!("Subprocess other: {exit_code}");
+        }
+        ExitStatus::Undetermined => {
+            eprintln!("Undetermined exit status.");
+        }
+    }
+
+    exit_status == ExitStatus::Exited(0)
 }
