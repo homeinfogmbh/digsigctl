@@ -1,14 +1,9 @@
+use crate::constants::{
+    CHROMIUM_SERVICE, CONFLICTING_SERVICES, INSTALLATION_INSTRUCTIONS_SERVICE,
+    UNCONFIGURED_WARNING_SERVICE,
+};
 use crate::systemctl::{enable_and_start, is_enabled_or_active, stop_and_disable};
 use serde::{Deserialize, Serialize};
-
-const CHROMIUM_SERVICE: &str = "chromium.service";
-const INSTALLATION_INSTRUCTIONS_SERVICE: &str = "installation-instructions.service";
-const UNCONFIGURED_WARNING_SERVICE: &str = "unconfigured-warning.service";
-const CONFLICTING_SERVICES: [&str; 3] = [
-    CHROMIUM_SERVICE,
-    INSTALLATION_INSTRUCTIONS_SERVICE,
-    UNCONFIGURED_WARNING_SERVICE,
-];
 
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub enum OperationMode {

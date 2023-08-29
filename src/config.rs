@@ -22,7 +22,7 @@ impl Config {
     /// # Errors
     /// Returns an [`digsigctl::config::Error`] if the configuration could not be applied
     pub fn apply(&self) -> Result<(), anyhow::Error> {
-        web_browser::await_shutdown()?;
+        web_browser::await_shutdown();
         self.update_chromium_preferences()?;
 
         if web_browser::start() {

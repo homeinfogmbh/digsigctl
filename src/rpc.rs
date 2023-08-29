@@ -41,13 +41,11 @@ impl Command {
                 default_preferences_file().and_then(|path| path.to_str().map(ToString::to_string)),
             )),
             Self::RestartWebBrowser => {
-                if let Ok(start_succeeded) = web_browser::restart() {
-                    if start_succeeded {
-                        return Result::Success(Box::new("Web browser restarted.".to_string()));
-                    }
+                if web_browser::restart() {
+                    Result::Success(Box::new("Web browser restarted.".to_string()))
+                } else {
+                    Result::Error("Could not restart web browser.".into())
                 }
-
-                Result::Error("Could not restart web browser.".into())
             }
             Self::SetOperationMode(operation_mode) => operation_mode.as_ref().map_or_else(
                 || Result::Success(Box::new(OperationMode::get())),
