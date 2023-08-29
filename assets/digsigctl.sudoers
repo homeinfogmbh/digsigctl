@@ -1,1 +1,9 @@
-digsig ALL = NOPASSWD: /usr/bin/systemctl start chromium.service, /usr/bin/systemctl stop chromium.service
+digsig ALL = NOPASSWD: \
+    /usr/bin/systemctl start chromium.service, \
+    /usr/bin/systemctl stop chromium.service, \
+    /usr/bin/systemctl enable --now chromium.service, \
+    /usr/bin/systemctl disable --now chromium.service, \
+    /usr/bin/systemctl enable --now installation-instructions.service, \
+    /usr/bin/systemctl disable --now installation-instructions.service, \
+    /usr/bin/systemctl enable --now unconfigured-warning.service, \
+    /usr/bin/systemctl disable --now unconfigured-warning.service
