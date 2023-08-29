@@ -1,7 +1,7 @@
 mod chromium_preferences;
 mod error;
 
-use crate::config::chromium_preferences::ChromiumPreferences;
+pub use crate::config::chromium_preferences::ChromiumPreferences;
 use crate::rpc::web_browser;
 pub use error::Error;
 use serde::Deserialize;

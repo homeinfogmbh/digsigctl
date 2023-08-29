@@ -22,6 +22,7 @@ mod unix {
 
     const CHROMIUM_DEFAULT_PREFERENCES: &str = ".config/chromium/Default/Preferences";
 
+    #[must_use]
     pub fn default_preferences_file() -> Option<PathBuf> {
         home_dir().map(|home| home.join(CHROMIUM_DEFAULT_PREFERENCES))
     }

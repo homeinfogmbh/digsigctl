@@ -12,7 +12,7 @@ use reboot::reboot;
 pub use result::Result;
 use serde::Deserialize;
 use std::fmt::Debug;
-use web_browser::default_preferences_file;
+pub use web_browser::default_preferences_file;
 
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq)]
 pub enum Command {
