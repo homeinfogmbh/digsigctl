@@ -1,11 +1,13 @@
 mod beep;
 mod identify;
+mod operation_mode;
 mod reboot;
 mod result;
 pub mod web_browser;
 
 use beep::beep;
 use identify::identify;
+use operation_mode::OperationMode;
 use reboot::reboot;
 pub use result::Result;
 use serde::Deserialize;
@@ -24,6 +26,8 @@ pub enum Command {
     ConfigFile,
     #[serde(rename = "restartWebBrowser")]
     RestartWebBrowser,
+    #[serde(rename = "setOperationMode")]
+    SetOperationMode(Option<OperationMode>),
 }
 
 impl Command {
@@ -45,6 +49,16 @@ impl Command {
 
                 Result::Error("Could not restart web browser.".into())
             }
+            Self::SetOperationMode(operation_mode) => operation_mode.as_ref().map_or_else(
+                || Result::Success(Box::new(OperationMode::get())),
+                |operation_mode| {
+                    if operation_mode.set() {
+                        Result::Success(Box::new("Operation mode set"))
+                    } else {
+                        Result::Error("Could not set operation mode.".into())
+                    }
+                },
+            ),
         }
     }
 }
