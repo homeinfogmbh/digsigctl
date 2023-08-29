@@ -2,7 +2,7 @@ use subprocess::{ExitStatus, Popen, PopenConfig, Redirection};
 
 pub fn stop_and_disable(service: &str) -> bool {
     Popen::create(
-        &["systemctl", "disable", "--now", service],
+        &["sudo", "systemctl", "disable", "--now", service],
         PopenConfig {
             stdout: Redirection::None,
             detached: false,
@@ -16,7 +16,7 @@ pub fn stop_and_disable(service: &str) -> bool {
 
 pub fn enable_and_start(service: &str) -> bool {
     Popen::create(
-        &["systemctl", "enable", "--now", service],
+        &["sudo", "systemctl", "enable", "--now", service],
         PopenConfig {
             stdout: Redirection::None,
             detached: false,
