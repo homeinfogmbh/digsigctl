@@ -1,5 +1,5 @@
+use crate::systemctl::{enable_and_start, is_enabled_or_active, stop_and_disable};
 use serde::{Deserialize, Serialize};
-use subprocess::{ExitStatus, Popen, PopenConfig, Redirection};
 
 const CHROMIUM_SERVICE: &str = "chromium.service";
 const INSTALLATION_INSTRUCTIONS_SERVICE: &str = "installation-instructions.service";
@@ -53,64 +53,4 @@ fn activate_exclusive(service: Option<&str>) -> bool {
     }
 
     service.map_or(true, enable_and_start)
-}
-
-fn stop_and_disable(service: &str) -> bool {
-    Popen::create(
-        &["systemctl", "disable", "--now", service],
-        PopenConfig {
-            stdout: Redirection::None,
-            detached: false,
-            ..Default::default()
-        },
-    )
-    .map_or(false, |popen| {
-        popen.exit_status().unwrap_or(ExitStatus::Undetermined) == ExitStatus::Exited(0)
-    })
-}
-
-fn enable_and_start(service: &str) -> bool {
-    Popen::create(
-        &["systemctl", "enable", "--now", service],
-        PopenConfig {
-            stdout: Redirection::None,
-            detached: false,
-            ..Default::default()
-        },
-    )
-    .map_or(false, |popen| {
-        popen.exit_status().unwrap_or(ExitStatus::Undetermined) == ExitStatus::Exited(0)
-    })
-}
-
-fn is_enabled_or_active(service: &str) -> bool {
-    is_enabled(service) | is_active(service)
-}
-
-fn is_enabled(service: &str) -> bool {
-    Popen::create(
-        &["systemctl", "is-enabled", service],
-        PopenConfig {
-            stdout: Redirection::None,
-            detached: false,
-            ..Default::default()
-        },
-    )
-    .map_or(false, |popen| {
-        popen.exit_status().unwrap_or(ExitStatus::Undetermined) == ExitStatus::Exited(0)
-    })
-}
-
-fn is_active(service: &str) -> bool {
-    Popen::create(
-        &["systemctl", "is-active", service],
-        PopenConfig {
-            stdout: Redirection::None,
-            detached: false,
-            ..Default::default()
-        },
-    )
-    .map_or(false, |popen| {
-        popen.exit_status().unwrap_or(ExitStatus::Undetermined) == ExitStatus::Exited(0)
-    })
 }

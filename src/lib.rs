@@ -2,6 +2,7 @@ mod config;
 mod net;
 mod rpc;
 mod sysinfo;
+mod systemctl;
 
 pub use crate::sysinfo::SystemInformation;
 pub use config::Config;
