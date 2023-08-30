@@ -6,4 +6,5 @@ digsig ALL = NOPASSWD: \
     /usr/bin/systemctl enable --now installation-instructions.service, \
     /usr/bin/systemctl disable --now installation-instructions.service, \
     /usr/bin/systemctl enable --now unconfigured-warning.service, \
-    /usr/bin/systemctl disable --now unconfigured-warning.service
+    /usr/bin/systemctl disable --now unconfigured-warning.service \
+    /usr/bin/systemctl start screenshot.service
