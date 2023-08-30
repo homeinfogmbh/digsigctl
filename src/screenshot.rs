@@ -61,7 +61,7 @@ mod unix {
 
         let mut buffer = Vec::new();
         let mut file = File::open(SCREENSHOT_FILE)?;
-        let _ = file.read(&mut buffer)?;
+        file.read_to_end(&mut buffer)?;
         Ok(buffer)
     }
 }
