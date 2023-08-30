@@ -1,18 +1,18 @@
 mod beep;
+pub mod chromium;
 mod identify;
 mod operation_mode;
 mod reboot;
 mod result;
-pub mod web_browser;
 
 use beep::beep;
+pub use chromium::default_preferences_file;
 use identify::identify;
 use operation_mode::OperationMode;
 use reboot::reboot;
 pub use result::Result;
 use serde::Deserialize;
 use std::fmt::Debug;
-pub use web_browser::default_preferences_file;
 
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq)]
 pub enum Command {
@@ -41,7 +41,7 @@ impl Command {
                 default_preferences_file().and_then(|path| path.to_str().map(ToString::to_string)),
             )),
             Self::RestartWebBrowser => {
-                if web_browser::restart() {
+                if chromium::restart() {
                     Result::Success(Box::new("Web browser restarted.".to_string()))
                 } else {
                     Result::Error("Could not restart web browser.".into())
