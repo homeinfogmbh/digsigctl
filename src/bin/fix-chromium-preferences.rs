@@ -6,7 +6,7 @@ use std::process::exit;
 #[derive(Parser)]
 #[clap(about, author, version)]
 struct Args {
-    #[clap(short, long)]
+    #[clap(index = 1)]
     filename: Option<PathBuf>,
 }
 
