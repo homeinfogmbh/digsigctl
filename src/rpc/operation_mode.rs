@@ -4,6 +4,7 @@ use crate::constants::{
 };
 use crate::systemctl::{enable_and_start, is_enabled_or_active, stop_and_disable};
 use serde::{Deserialize, Serialize};
+use subprocess::ExitStatus;
 
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub enum OperationMode {
@@ -44,8 +45,10 @@ impl OperationMode {
 
 fn activate_exclusive(service: Option<&str>) -> bool {
     for conflicting_service in CONFLICTING_SERVICES {
-        stop_and_disable(conflicting_service);
+        let _ = stop_and_disable(conflicting_service);
     }
 
-    service.map_or(true, enable_and_start)
+    service.map_or(true, |service| {
+        enable_and_start(service).map_or(false, |exit_status| exit_status == ExitStatus::Exited(0))
+    })
 }

@@ -43,6 +43,7 @@ mod unix {
     use crate::systemctl;
     use std::fs::File;
     use std::io::Read;
+    use subprocess::ExitStatus;
 
     const SCREENSHOT_SERVICE: &str = "screenshot.service";
     const SCREENSHOT_FILE: &str = "/tmp/screenshot.png";
@@ -52,13 +53,13 @@ mod unix {
     /// # Errors
     /// Returns an `[anyhow::Error]` if screenshot could not be taken.
     pub fn take_screenshot() -> anyhow::Result<Vec<u8>> {
-        if !systemctl::start(SCREENSHOT_SERVICE) {
-            return Err(anyhow::Error::msg("Could not start screenshot service."));
-        }
+        systemctl::start(SCREENSHOT_SERVICE)?;
 
-        while systemctl::is_active(SCREENSHOT_SERVICE) {}
+        while systemctl::is_active(SCREENSHOT_SERVICE)
+            .map_or(false, |exit_status| exit_status == ExitStatus::Exited(0))
+        {}
+
         let mut buffer = Vec::new();
-
         let mut file = File::open(SCREENSHOT_FILE)?;
         let _ = file.read(&mut buffer)?;
         Ok(buffer)

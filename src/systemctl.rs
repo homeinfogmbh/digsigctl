@@ -1,74 +1,69 @@
 use subprocess::{ExitStatus, Popen, PopenConfig, Redirection};
 
-pub fn start(service: &str) -> bool {
+pub fn start(service: &str) -> subprocess::Result<ExitStatus> {
     systemctl_adm(&["start", service])
 }
 
-pub fn stop(service: &str) -> bool {
+pub fn stop(service: &str) -> subprocess::Result<ExitStatus> {
     systemctl_adm(&["stop", service])
 }
 
-pub fn stop_and_disable(service: &str) -> bool {
+pub fn stop_and_disable(service: &str) -> subprocess::Result<ExitStatus> {
     systemctl_adm(&["disable", "--now", service])
 }
 
-pub fn enable_and_start(service: &str) -> bool {
+pub fn enable_and_start(service: &str) -> subprocess::Result<ExitStatus> {
     systemctl_adm(&["enable", "--now", service])
 }
 
 pub fn is_enabled_or_active(service: &str) -> bool {
-    is_enabled(service) | is_active(service)
+    if let Ok(enabled) = is_enabled(service) {
+        if enabled == ExitStatus::Exited(0) {
+            return true;
+        }
+    }
+
+    if let Ok(active) = is_active(service) {
+        if active == ExitStatus::Exited(0) {
+            return true;
+        }
+    }
+
+    false
 }
 
-pub fn is_enabled(service: &str) -> bool {
+pub fn is_enabled(service: &str) -> subprocess::Result<ExitStatus> {
     systemctl(&["is-enabled", service])
 }
 
-pub fn is_active(service: &str) -> bool {
+pub fn is_active(service: &str) -> subprocess::Result<ExitStatus> {
     systemctl(&["is-active", service])
 }
 
-pub fn status(service: &str) -> bool {
+pub fn status(service: &str) -> subprocess::Result<ExitStatus> {
     systemctl(&["status", service])
 }
 
-fn systemctl_adm(command: &[&str]) -> bool {
-    evaluate_result(Popen::create(
+fn systemctl_adm(command: &[&str]) -> subprocess::Result<ExitStatus> {
+    Popen::create(
         &[&["sudo", "systemctl"], command].concat(),
         PopenConfig {
             stdout: Redirection::None,
             detached: false,
             ..Default::default()
         },
-    ))
+    )
+    .and_then(|mut popen| popen.wait())
 }
 
-fn systemctl(command: &[&str]) -> bool {
-    evaluate_result(Popen::create(
+fn systemctl(command: &[&str]) -> subprocess::Result<ExitStatus> {
+    Popen::create(
         &[&["systemctl"], command].concat(),
         PopenConfig {
             stdout: Redirection::None,
             detached: false,
             ..Default::default()
         },
-    ))
-}
-
-fn evaluate_result(result: subprocess::Result<Popen>) -> bool {
-    match result {
-        Ok(popen) => popen.exit_status().map_or_else(
-            || {
-                eprintln!("Could not determine exit status");
-                false
-            },
-            |exit_status| {
-                println!("Exit status is: {exit_status:?}");
-                exit_status == ExitStatus::Exited(0)
-            },
-        ),
-        Err(error) => {
-            eprintln!("Popen failed: {error}");
-            false
-        }
-    }
+    )
+    .and_then(|mut popen| popen.wait())
 }

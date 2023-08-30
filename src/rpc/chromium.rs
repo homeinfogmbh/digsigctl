@@ -19,6 +19,7 @@ mod unix {
     use crate::systemctl;
     use home::home_dir;
     use std::path::PathBuf;
+    use subprocess::ExitStatus;
 
     const CHROMIUM_DEFAULT_PREFERENCES: &str = ".config/chromium/Default/Preferences";
 
@@ -28,15 +29,27 @@ mod unix {
     }
 
     pub fn stop() -> bool {
-        systemctl::stop(CHROMIUM_SERVICE)
+        if let Ok(exit_status) = systemctl::stop(CHROMIUM_SERVICE) {
+            exit_status == ExitStatus::Exited(0)
+        } else {
+            false
+        }
     }
 
     pub fn is_running() -> bool {
-        systemctl::status(CHROMIUM_SERVICE)
+        if let Ok(exit_status) = systemctl::status(CHROMIUM_SERVICE) {
+            exit_status == ExitStatus::Exited(0)
+        } else {
+            false
+        }
     }
 
     pub fn start() -> bool {
-        systemctl::start(CHROMIUM_SERVICE)
+        if let Ok(exit_status) = systemctl::start(CHROMIUM_SERVICE) {
+            exit_status == ExitStatus::Exited(0)
+        } else {
+            false
+        }
     }
 }
 
