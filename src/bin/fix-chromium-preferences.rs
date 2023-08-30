@@ -18,6 +18,11 @@ fn main() {
         })
     });
 
+    if !file.exists() {
+        eprintln!("Preferences file not existent.");
+        exit(0);
+    }
+
     ChromiumPreferences::load(&file).map_or_else(
         |_| {
             eprintln!("Preferences file is damaged beyond repair.");
