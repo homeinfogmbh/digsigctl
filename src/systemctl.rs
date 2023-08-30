@@ -33,29 +33,42 @@ pub fn status(service: &str) -> bool {
 }
 
 fn systemctl_adm(command: &[&str]) -> bool {
-    Popen::create(
+    evaluate_result(Popen::create(
         &[&["sudo", "systemctl"], command].concat(),
         PopenConfig {
             stdout: Redirection::None,
             detached: false,
             ..Default::default()
         },
-    )
-    .map_or(false, |popen| {
-        popen.exit_status().unwrap_or(ExitStatus::Undetermined) == ExitStatus::Exited(0)
-    })
+    ))
 }
 
 fn systemctl(command: &[&str]) -> bool {
-    Popen::create(
+    evaluate_result(Popen::create(
         &[&["systemctl"], command].concat(),
         PopenConfig {
             stdout: Redirection::None,
             detached: false,
             ..Default::default()
         },
-    )
-    .map_or(false, |popen| {
-        popen.exit_status().unwrap_or(ExitStatus::Undetermined) == ExitStatus::Exited(0)
-    })
+    ))
+}
+
+fn evaluate_result(result: subprocess::Result<Popen>) -> bool {
+    match result {
+        Ok(popen) => popen.exit_status().map_or_else(
+            || {
+                eprintln!("Could not determine exit status");
+                false
+            },
+            |exit_status| {
+                println!("Exit status is: {exit_status:?}");
+                exit_status == ExitStatus::Exited(0)
+            },
+        ),
+        Err(error) => {
+            eprintln!("Popen failed: {error}");
+            false
+        }
+    }
 }
