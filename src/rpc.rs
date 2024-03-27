@@ -26,6 +26,8 @@ pub enum Command {
     ConfigFile,
     #[serde(rename = "restartWebBrowser")]
     RestartWebBrowser,
+    #[serde(rename = "getOperationMode")]
+    GetOperationMode,
     #[serde(rename = "operationMode")]
     OperationMode(Option<OperationMode>),
 }
@@ -47,6 +49,7 @@ impl Command {
                     Result::Error("Could not restart web browser.".into())
                 }
             }
+            Self::GetOperationMode => Result::Success(Box::new(OperationMode::get())),
             Self::OperationMode(operation_mode) => operation_mode.as_ref().map_or_else(
                 || Result::Success(Box::new(OperationMode::get())),
                 |operation_mode| {
