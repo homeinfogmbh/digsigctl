@@ -100,7 +100,7 @@ impl From<Application> for Metadata {
 impl From<Mode> for Option<Application> {
     fn from(mode: Mode) -> Self {
         match mode {
-            Mode::Productive => get_preferred_application(),
+            Mode::Productive => get_preferred(),
             Mode::InstallationInstructions => Some(Application::InstallationInstructions),
             Mode::NotConfigured => Some(Application::NotConfiguredWarning),
             Mode::Off => Some(Application::Off),
@@ -108,7 +108,8 @@ impl From<Mode> for Option<Application> {
     }
 }
 
-pub fn get_preferred_application() -> Option<Application> {
+/// Return the first of the  preferred applications which is available on the system.
+pub fn get_preferred() -> Option<Application> {
     for application in APPLICATION_PREFERENCE {
         let metadata = Metadata::from(application);
 
