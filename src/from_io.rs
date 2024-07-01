@@ -1,4 +1,4 @@
-pub trait TryFromIo {
+pub trait TryFromIo: Sized {
     fn try_from_io(bytes: Vec<u8>) -> std::io::Result<Self>;
 }
 
