@@ -19,8 +19,8 @@ pub fn pacman(args: &[&str]) -> Command {
 
 /// Retrieve the version of a package using pacman.
 pub fn package_version(package: &str) -> std::io::Result<String> {
-    String::try_from_io(pacman(&["-Q", package]).spawn()?.wait_with_output()?.stdout)
-        .and_then(|string| {
+    String::try_from_io(pacman(&["-Q", package]).spawn()?.wait_with_output()?.stdout).and_then(
+        |string| {
             string
                 .split_whitespace()
                 .collect::<Vec<_>>()
@@ -29,5 +29,6 @@ pub fn package_version(package: &str) -> std::io::Result<String> {
                     std::io::Error::new(std::io::ErrorKind::InvalidData, "missing version field")
                 })
                 .map(std::string::ToString::to_string)
-        })
+        },
+    )
 }
