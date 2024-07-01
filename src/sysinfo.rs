@@ -1,15 +1,16 @@
+mod application;
 mod cmdline;
 mod cpuinfo;
 mod df;
 mod meminfo;
 
 use crate::sysinfo::cpuinfo::CpuInfo;
+use crate::sysinfo::df::{df, Entry};
 use crate::sysinfo::meminfo::meminfo;
 use cmdline::cmdline;
+use rocket::log::private::error;
 use serde::Serialize;
 use std::collections::HashMap;
-use rocket::log::private::error;
-use crate::sysinfo::df::{df, Entry};
 
 #[allow(dead_code)]
 #[derive(Debug, Serialize)]
