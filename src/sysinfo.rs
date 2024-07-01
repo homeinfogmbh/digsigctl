@@ -1,5 +1,6 @@
 mod cmdline;
 mod cpuinfo;
+mod df;
 mod meminfo;
 
 use crate::sysinfo::cpuinfo::CpuInfo;
@@ -7,6 +8,8 @@ use crate::sysinfo::meminfo::meminfo;
 use cmdline::cmdline;
 use serde::Serialize;
 use std::collections::HashMap;
+use rocket::log::private::error;
+use crate::sysinfo::df::{df, Entry};
 
 #[allow(dead_code)]
 #[derive(Debug, Serialize)]
@@ -21,6 +24,7 @@ pub struct SystemInformation {
     cmd_line: Option<HashMap<String, Option<String>>>,
     cpu_info: Option<CpuInfo>,
     mem_info: Option<HashMap<String, usize>>,
+    df: Option<Vec<Entry>>,
 }
 
 impl SystemInformation {
@@ -34,6 +38,7 @@ impl SystemInformation {
             cmd_line: cmdline().ok(),
             cpu_info: CpuInfo::read().ok(),
             mem_info: meminfo().ok(),
+            df: df().map_err(|error| error!("{error}")).ok(),
         }
     }
 }
