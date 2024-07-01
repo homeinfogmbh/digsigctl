@@ -124,6 +124,7 @@ pub fn get_preferred_application() -> Option<Application> {
     None
 }
 
+/// Return the current application status on the system.
 pub fn status() -> Metadata {
     for metadata in APPLICATION_PREFERENCE.map(Metadata::from) {
         if let Some(unit) = metadata.unit {
