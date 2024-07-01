@@ -31,7 +31,7 @@ impl TryFrom<[&str; 6]> for Entry {
             blocks: blocks.parse()?,
             used: used.parse()?,
             available: available.parse()?,
-            use_pct: use_pct.parse()?,
+            use_pct: use_pct.replace('%', "").parse()?,
             mountpoint: mountpoint.into(),
         })
     }
@@ -42,7 +42,7 @@ impl FromStr for Entry {
 
     fn from_str(line: &str) -> Result<Self, Self::Err> {
         let fields: [&str; 6] = line
-            .split_ascii_whitespace()
+            .split_whitespace()
             .collect::<Vec<&str>>()
             .try_into()
             .map_err(|_| anyhow!("could not convert vec to array"))?;
@@ -58,9 +58,11 @@ pub fn df() -> std::io::Result<Vec<Entry>> {
             .spawn()?
             .wait_with_output()?
             .stdout,
-    ).map(|text| text
-        .split('\n')
-        .skip(1)
-        .filter_map(|line| Entry::from_str(line).ok())
-        .collect())
+    )
+    .map(|text| {
+        text.lines()
+            .skip(1)
+            .filter_map(|line| Entry::from_str(line).ok())
+            .collect()
+    })
 }
