@@ -5,6 +5,8 @@ use std::str::FromStr;
 use anyhow::anyhow;
 use serde::Serialize;
 
+use crate::from_io::TryFromIo;
+
 const DF: &str = "/usr/bin/df";
 const POSIX_FORMAT: &str = "-P";
 
@@ -49,20 +51,14 @@ impl FromStr for Entry {
 }
 
 pub fn df() -> std::io::Result<Vec<Entry>> {
-    String::from_utf8(
+    String::try_from_io(
         Command::new(DF)
             .arg(POSIX_FORMAT)
             .stdout(Stdio::piped())
             .spawn()?
             .wait_with_output()?
             .stdout,
-    )
-        .map_err(|error| {
-            std::io::Error::new(
-                std::io::ErrorKind::InvalidData,
-                format!("encountered non-utf-8 data: {error:?}"),
-            )
-        }).map(|text| text
+    ).map(|text| text
         .split('\n')
         .skip(1)
         .filter_map(|line| Entry::from_str(line).ok())
