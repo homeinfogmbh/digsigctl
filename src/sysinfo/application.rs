@@ -32,10 +32,11 @@ pub struct Metadata {
     mode: Mode,
     unit: Option<&'static str>,
     package: Option<&'static str>,
+    version: Option<String>,
 }
 
 impl Metadata {
-    pub const fn new(
+    pub fn new(
         name: &'static str,
         mode: Mode,
         unit: Option<&'static str>,
@@ -46,20 +47,16 @@ impl Metadata {
             mode,
             unit,
             package,
+            version: package.and_then(|package| package_version(package).ok()),
         }
     }
 
     pub fn is_productive(&self) -> bool {
         self.mode == Mode::Productive
     }
-
-    pub fn version(&self) -> Option<String> {
-        self.package
-            .as_deref()
-            .and_then(|package| package_version(package).ok())
-    }
 }
 
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum Application {
     Html,
     Air,
@@ -68,41 +65,35 @@ pub enum Application {
     Off,
 }
 
-impl From<&Application> for Metadata {
-    fn from(application: &Application) -> Self {
+impl From<Application> for Metadata {
+    fn from(application: Application) -> Self {
         match application {
-            Application::Html => Metadata::new(
+            Application::Html => Self::new(
                 "html",
                 Mode::Productive,
                 Some("html5ds.service"),
                 Some("application-html"),
             ),
-            Application::Air => Metadata::new(
+            Application::Air => Self::new(
                 "air",
                 Mode::Productive,
                 Some("application.service"),
                 Some("application-air"),
             ),
-            Application::NotConfiguredWarning => Metadata::new(
+            Application::NotConfiguredWarning => Self::new(
                 "not configured",
                 Mode::NotConfigured,
                 Some("unconfigured-warning.service"),
                 None,
             ),
-            Application::InstallationInstructions => Metadata::new(
+            Application::InstallationInstructions => Self::new(
                 "installation instructions",
                 Mode::InstallationInstructions,
                 Some("installation-instructions.service"),
                 None,
             ),
-            Application::Off => Metadata::new("off", Mode::Off, None, None),
+            Application::Off => Self::new("off", Mode::Off, None, None),
         }
-    }
-}
-
-impl From<Application> for Metadata {
-    fn from(application: Application) -> Self {
-        (&application).into()
     }
 }
 
@@ -119,7 +110,7 @@ impl From<Mode> for Option<Application> {
 
 pub fn get_preferred_application() -> Option<Application> {
     for application in APPLICATION_PREFERENCE {
-        let metadata = Metadata::from(&application);
+        let metadata = Metadata::from(application);
 
         if metadata.is_productive() {
             if let Some(unit) = metadata.unit {
