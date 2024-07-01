@@ -23,12 +23,11 @@ pub fn package_version(package: &str) -> std::io::Result<String> {
         |string| {
             string
                 .split_whitespace()
-                .collect::<Vec<_>>()
-                .get(1)
+                .nth(1)
                 .ok_or_else(|| {
                     std::io::Error::new(std::io::ErrorKind::InvalidData, "missing version field")
                 })
-                .map(std::string::ToString::to_string)
+                .map(ToString::to_string)
         },
     )
 }
