@@ -1,4 +1,3 @@
-use std::io::Read;
 use std::path::PathBuf;
 use std::process::{Command, Stdio};
 use std::str::FromStr;
@@ -50,16 +49,20 @@ impl FromStr for Entry {
 }
 
 pub fn df() -> std::io::Result<Vec<Entry>> {
-    let mut child = Command::new(DF)
-        .arg(POSIX_FORMAT)
-        .stdout(Stdio::piped())
-        .spawn()?;
-    child.wait()?;
-    let mut text = String::new();
-    if let Some(mut stdout) = child.stdout {
-        stdout.read_to_string(&mut text)?;
-    }
-    Ok(text
+    String::from_utf8(
+        Command::new(DF)
+            .arg(POSIX_FORMAT)
+            .stdout(Stdio::piped())
+            .spawn()?
+            .wait_with_output()?
+            .stdout,
+    )
+        .map_err(|error| {
+            std::io::Error::new(
+                std::io::ErrorKind::InvalidData,
+                format!("encountered non-utf-8 data: {error:?}"),
+            )
+        }).map(|text| text
         .split('\n')
         .skip(1)
         .filter_map(|line| Entry::from_str(line).ok())
