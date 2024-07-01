@@ -108,7 +108,7 @@ impl From<Mode> for Option<Application> {
     }
 }
 
-/// Return the first of the  preferred applications which is available on the system.
+/// Return the first of the preferred applications which is available on the system.
 pub fn get_preferred() -> Option<Application> {
     for application in APPLICATION_PREFERENCE {
         let metadata = Metadata::from(application);

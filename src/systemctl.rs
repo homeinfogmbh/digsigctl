@@ -54,7 +54,7 @@ fn systemctl_adm(command: &[&str]) -> subprocess::Result<ExitStatus> {
             ..Default::default()
         },
     )
-        .and_then(|mut popen| popen.wait())
+    .and_then(|mut popen| popen.wait())
 }
 
 fn systemctl(command: &[&str]) -> subprocess::Result<ExitStatus> {
@@ -67,5 +67,5 @@ fn systemctl(command: &[&str]) -> subprocess::Result<ExitStatus> {
             ..Default::default()
         },
     )
-        .and_then(|mut popen| popen.wait())
+    .and_then(|mut popen| popen.wait())
 }
