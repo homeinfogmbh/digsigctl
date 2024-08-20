@@ -3,6 +3,7 @@ use std::collections::HashMap;
 use serde::Serialize;
 use sysinfo::Disks;
 
+use crate::sysinfo::mount::root_mounted_ro;
 use application::Metadata;
 use cmdline::cmdline;
 use cpuinfo::CpuInfo;
@@ -17,6 +18,7 @@ mod cpuinfo;
 mod df;
 mod efi;
 mod meminfo;
+mod mount;
 mod uptime;
 
 #[allow(dead_code)]
@@ -30,7 +32,7 @@ pub enum Os {
 pub struct SystemInformation {
     os: Os,
     application: Metadata,
-    baytrail: bool,
+    baytrail: Option<bool>,
     efi: Efi,
     #[serde(rename = "cmdline")]
     cmd_line: Option<HashMap<String, Option<String>>>,
@@ -39,7 +41,7 @@ pub struct SystemInformation {
     df: Vec<Entry>,
     #[serde(rename = "meminfo")]
     mem_info: Option<HashMap<String, usize>>,
-    root_ro: bool,
+    root_ro: Option<bool>,
     uptime: Uptime,
     disks: Disks,
 }
@@ -53,9 +55,7 @@ impl SystemInformation {
             #[cfg(target_family = "windows")]
             os: Os::Windows,
             application: application::status(),
-            baytrail: CpuInfo::read()
-                .map(|cpu_info| cpu_info.is_bay_trail())
-                .unwrap_or(false),
+            baytrail: CpuInfo::read().map(|cpu_info| cpu_info.is_bay_trail()).ok(),
             efi: Efi::default(),
             cmd_line: cmdline().ok(),
             cpu_info: CpuInfo::read().ok(),
@@ -65,7 +65,7 @@ impl SystemInformation {
                 .map(Entry::from)
                 .collect(),
             mem_info: meminfo().ok(),
-            root_ro: false,
+            root_ro: root_mounted_ro().ok(),
             uptime: Uptime::default(),
             disks: Disks::new_with_refreshed_list(),
         }
