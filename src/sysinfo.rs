@@ -1,12 +1,13 @@
 use std::collections::HashMap;
 
-use rocket::log::private::error;
 use serde::Serialize;
+use sysinfo::Disks;
 
 use application::Metadata;
 use cmdline::cmdline;
 use cpuinfo::CpuInfo;
-use df::{df, Entry};
+use df::Entry;
+use efi::Efi;
 use meminfo::meminfo;
 use uptime::Uptime;
 
@@ -14,7 +15,9 @@ mod application;
 mod cmdline;
 mod cpuinfo;
 mod df;
+mod efi;
 mod meminfo;
+mod mount;
 mod uptime;
 
 #[allow(dead_code)]
@@ -27,12 +30,19 @@ pub enum Os {
 #[derive(Debug, Serialize)]
 pub struct SystemInformation {
     os: Os,
-    cmd_line: Option<HashMap<String, Option<String>>>,
-    cpu_info: Option<CpuInfo>,
-    mem_info: Option<HashMap<String, usize>>,
     application: Metadata,
-    df: Option<Vec<Entry>>,
+    baytrail: bool,
+    efi: Efi,
+    #[serde(rename = "cmdline")]
+    cmd_line: Option<HashMap<String, Option<String>>>,
+    #[serde(rename = "cpuinfo")]
+    cpu_info: Option<CpuInfo>,
+    df: Vec<Entry>,
+    #[serde(rename = "meminfo")]
+    mem_info: Option<HashMap<String, usize>>,
+    root_ro: bool,
     uptime: Uptime,
+    disks: Disks,
 }
 
 impl SystemInformation {
@@ -43,12 +53,20 @@ impl SystemInformation {
             os: Os::Unix,
             #[cfg(target_family = "windows")]
             os: Os::Windows,
+            application: application::status(),
+            baytrail: false,
+            efi: Efi::default(),
             cmd_line: cmdline().ok(),
             cpu_info: CpuInfo::read().ok(),
+            df: Disks::new_with_refreshed_list()
+                .list()
+                .iter()
+                .map(Entry::from)
+                .collect(),
             mem_info: meminfo().ok(),
-            application: application::status(),
-            df: df().map_err(|error| error!("{error}")).ok(),
+            root_ro: false,
             uptime: Uptime::default(),
+            disks: Disks::new_with_refreshed_list(),
         }
     }
 }
