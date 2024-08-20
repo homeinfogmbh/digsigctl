@@ -3,18 +3,19 @@ use std::collections::HashMap;
 use rocket::log::private::error;
 use serde::Serialize;
 
+use application::Metadata;
 use cmdline::cmdline;
-
-use crate::sysinfo::application::Metadata;
-use crate::sysinfo::cpuinfo::CpuInfo;
-use crate::sysinfo::df::{df, Entry};
-use crate::sysinfo::meminfo::meminfo;
+use cpuinfo::CpuInfo;
+use df::{df, Entry};
+use meminfo::meminfo;
+use uptime::Uptime;
 
 mod application;
 mod cmdline;
 mod cpuinfo;
 mod df;
 mod meminfo;
+mod uptime;
 
 #[allow(dead_code)]
 #[derive(Debug, Serialize)]
@@ -31,6 +32,7 @@ pub struct SystemInformation {
     mem_info: Option<HashMap<String, usize>>,
     application: Metadata,
     df: Option<Vec<Entry>>,
+    uptime: Uptime,
 }
 
 impl SystemInformation {
@@ -46,6 +48,7 @@ impl SystemInformation {
             mem_info: meminfo().ok(),
             application: application::status(),
             df: df().map_err(|error| error!("{error}")).ok(),
+            uptime: Uptime::default(),
         }
     }
 }

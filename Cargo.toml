@@ -16,7 +16,7 @@ local-ip-address = "0.6"
 rocket = { version = "0.5", features = ["json"] }
 serde = { version = "1.0", features = ["derive"] }
 subprocess = "0.2"
-sysinfo = "0.31"
+sysinfo = { version = "0.31", features = ["serde"] }
 system_shutdown = "4.0"
 
 [target."cfg(unix)".dependencies]
