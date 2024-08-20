@@ -16,7 +16,7 @@ impl Default for Uptime {
     fn default() -> Self {
         Self {
             time: SystemTime::now(),
-            uptime: Duration::from_millis(System::uptime()),
+            uptime: Duration::from_secs(System::uptime()),
             users: Users::new(),
             load_avg: System::load_average(),
         }
