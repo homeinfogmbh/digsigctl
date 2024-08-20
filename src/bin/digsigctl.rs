@@ -34,7 +34,7 @@ fn rocket() -> Rocket<Build> {
 #[post("/configure", format = "application/json", data = "<config>")]
 fn configure(config: Json<Config>) -> String {
     match config.apply() {
-        Ok(_) => "Configuration applied.".to_string(),
+        Ok(()) => "Configuration applied.".to_string(),
         Err(error) => error.to_string(),
     }
 }

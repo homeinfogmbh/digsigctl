@@ -84,8 +84,8 @@ impl Add for Errors {
 
     fn add(self, rhs: Self) -> Self::Output {
         let mut errors = Vec::new();
-        errors.extend(self.errors.into_iter());
-        errors.extend(rhs.errors.into_iter());
+        errors.extend(self.errors);
+        errors.extend(rhs.errors);
         Self::new(errors, self.status)
     }
 }

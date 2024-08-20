@@ -17,7 +17,6 @@ mod cpuinfo;
 mod df;
 mod efi;
 mod meminfo;
-mod mount;
 mod uptime;
 
 #[allow(dead_code)]

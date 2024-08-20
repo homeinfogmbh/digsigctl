@@ -19,7 +19,10 @@ impl From<&Disk> for Entry {
             filesystem: String::from_utf8_lossy(disk.file_system().as_encoded_bytes()).to_string(),
             used,
             available: disk.available_space(),
-            use_pct: (used * 100).div_euclid(disk.total_space()) as u8,
+            use_pct: (used * 100)
+                .div_euclid(disk.total_space())
+                .try_into()
+                .expect("percentage too high"),
             mountpoint: disk.mount_point().into(),
         }
     }

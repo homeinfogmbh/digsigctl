@@ -1,12 +1,12 @@
 mod config;
 mod constants;
-mod from_io;
 mod net;
 mod pacman;
 mod rpc;
 mod screenshot;
 mod sysinfo;
 mod systemctl;
+mod try_from_io;
 
 pub use crate::sysinfo::SystemInformation;
 pub use config::{ChromiumPreferences, Config};

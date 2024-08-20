@@ -1,6 +1,6 @@
 use std::process::{Command, Stdio};
 
-use crate::from_io::TryFromIo;
+use crate::try_from_io::TryFromIo;
 
 const PACMAN: &str = "/usr/bin/pacman";
 
