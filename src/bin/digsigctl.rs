@@ -27,7 +27,7 @@ fn rocket() -> Rocket<Build> {
             .merge(("port", args.port))
             .merge(("address", discover_address_or_exit(args.network.as_str()))),
     )
-    .mount("/", routes![configure, screenshot, sysinfo, rpc])
+        .mount("/", routes![configure, screenshot, sysinfo, rpc])
 }
 
 #[allow(clippy::needless_pass_by_value)]
@@ -46,7 +46,7 @@ fn screenshot() -> ScreenshotResponse {
 
 #[get("/sysinfo", format = "application/json")]
 fn sysinfo() -> Json<SystemInformation> {
-    Json(SystemInformation::gather())
+    Json(SystemInformation::default())
 }
 
 #[allow(clippy::needless_pass_by_value)]

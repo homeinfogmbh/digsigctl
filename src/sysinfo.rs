@@ -46,9 +46,8 @@ pub struct SystemInformation {
     disks: Disks,
 }
 
-impl SystemInformation {
-    #[must_use]
-    pub fn gather() -> Self {
+impl Default for SystemInformation {
+    fn default() -> Self {
         Self {
             #[cfg(target_family = "unix")]
             os: Os::Unix,
