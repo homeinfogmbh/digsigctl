@@ -53,7 +53,9 @@ impl SystemInformation {
             #[cfg(target_family = "windows")]
             os: Os::Windows,
             application: application::status(),
-            baytrail: false,
+            baytrail: CpuInfo::read()
+                .map(|cpu_info| cpu_info.is_bay_trail())
+                .unwrap_or(false),
             efi: Efi::default(),
             cmd_line: cmdline().ok(),
             cpu_info: CpuInfo::read().ok(),
