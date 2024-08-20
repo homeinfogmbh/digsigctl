@@ -27,7 +27,7 @@ fn rocket() -> Rocket<Build> {
             .merge(("port", args.port))
             .merge(("address", discover_address_or_exit(args.network.as_str()))),
     )
-        .mount("/", routes![configure, screenshot, sysinfo, rpc])
+    .mount("/", routes![configure, screenshot, sysinfo, rpc])
 }
 
 #[allow(clippy::needless_pass_by_value)]

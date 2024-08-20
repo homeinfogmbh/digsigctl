@@ -1,15 +1,17 @@
 use std::collections::HashMap;
 
+use rocket::serde::json::serde_json;
 use serde::Serialize;
 use sysinfo::Disks;
 
-use crate::sysinfo::mount::root_mounted_ro;
 use application::Metadata;
 use cmdline::cmdline;
 use cpuinfo::CpuInfo;
 use df::Entry;
 use efi::Efi;
 use meminfo::meminfo;
+use mount::root_mounted_ro;
+use sensors::sensors;
 use uptime::Uptime;
 
 mod application;
@@ -19,6 +21,7 @@ mod df;
 mod efi;
 mod meminfo;
 mod mount;
+mod sensors;
 mod uptime;
 
 #[allow(dead_code)]
@@ -42,8 +45,8 @@ pub struct SystemInformation {
     #[serde(rename = "meminfo")]
     mem_info: Option<HashMap<String, usize>>,
     root_ro: Option<bool>,
+    sensors: Option<serde_json::Value>,
     uptime: Uptime,
-    disks: Disks,
 }
 
 impl Default for SystemInformation {
@@ -65,8 +68,8 @@ impl Default for SystemInformation {
                 .collect(),
             mem_info: meminfo().ok(),
             root_ro: root_mounted_ro().ok(),
+            sensors: sensors().ok(),
             uptime: Uptime::default(),
-            disks: Disks::new_with_refreshed_list(),
         }
     }
 }
