@@ -4,6 +4,7 @@ mod net;
 mod pacman;
 mod rpc;
 mod screenshot;
+mod sudo;
 mod sysinfo;
 mod systemctl;
 mod try_from_io;

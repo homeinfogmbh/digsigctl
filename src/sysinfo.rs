@@ -4,6 +4,7 @@ use rocket::serde::json::serde_json;
 use serde::Serialize;
 use sysinfo::Disks;
 
+use crate::sysinfo::smart::device_states;
 use application::Metadata;
 use cmdline::cmdline;
 use cpuinfo::CpuInfo;
@@ -22,6 +23,7 @@ mod efi;
 mod meminfo;
 mod mount;
 mod sensors;
+mod smart;
 mod uptime;
 
 #[allow(dead_code)]
@@ -47,6 +49,7 @@ pub struct SystemInformation {
     root_ro: Option<bool>,
     sensors: Option<serde_json::Value>,
     uptime: Uptime,
+    smartctl: Option<HashMap<String, Option<String>>>,
 }
 
 impl Default for SystemInformation {
@@ -70,6 +73,7 @@ impl Default for SystemInformation {
             root_ro: root_mounted_ro().ok(),
             sensors: sensors().ok(),
             uptime: Uptime::default(),
+            smartctl: device_states().ok(),
         }
     }
 }
