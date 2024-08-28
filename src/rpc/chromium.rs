@@ -29,27 +29,18 @@ mod unix {
     }
 
     pub fn stop() -> bool {
-        if let Ok(exit_status) = systemctl::stop(CHROMIUM_SERVICE) {
-            exit_status == ExitStatus::Exited(0)
-        } else {
-            false
-        }
+        systemctl::stop(CHROMIUM_SERVICE)
+            .map_or(false, |exit_status| exit_status == ExitStatus::Exited(0))
     }
 
     pub fn is_running() -> bool {
-        if let Ok(exit_status) = systemctl::status(CHROMIUM_SERVICE) {
-            exit_status == ExitStatus::Exited(0)
-        } else {
-            false
-        }
+        systemctl::status(CHROMIUM_SERVICE)
+            .map_or(false, |exit_status| exit_status == ExitStatus::Exited(0))
     }
 
     pub fn start() -> bool {
-        if let Ok(exit_status) = systemctl::start(CHROMIUM_SERVICE) {
-            exit_status == ExitStatus::Exited(0)
-        } else {
-            false
-        }
+        systemctl::start(CHROMIUM_SERVICE)
+            .map_or(false, |exit_status| exit_status == ExitStatus::Exited(0))
     }
 }
 

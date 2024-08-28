@@ -34,7 +34,7 @@ fn rocket() -> Rocket<Build> {
 #[post("/configure", format = "application/json", data = "<config>")]
 fn configure(config: Json<Config>) -> String {
     match config.apply() {
-        Ok(_) => "Configuration applied.".to_string(),
+        Ok(()) => "Configuration applied.".to_string(),
         Err(error) => error.to_string(),
     }
 }
@@ -46,7 +46,7 @@ fn screenshot() -> ScreenshotResponse {
 
 #[get("/sysinfo", format = "application/json")]
 fn sysinfo() -> Json<SystemInformation> {
-    Json(SystemInformation::gather())
+    Json(SystemInformation::default())
 }
 
 #[allow(clippy::needless_pass_by_value)]

@@ -48,7 +48,8 @@ fn systemctl_adm(command: &[&str]) -> subprocess::Result<ExitStatus> {
     Popen::create(
         &[&["sudo", "systemctl"], command].concat(),
         PopenConfig {
-            stdout: Redirection::None,
+            stdout: Redirection::Pipe,
+            stderr: Redirection::Pipe,
             detached: false,
             ..Default::default()
         },
@@ -60,7 +61,8 @@ fn systemctl(command: &[&str]) -> subprocess::Result<ExitStatus> {
     Popen::create(
         &[&["systemctl"], command].concat(),
         PopenConfig {
-            stdout: Redirection::None,
+            stdout: Redirection::Pipe,
+            stderr: Redirection::Pipe,
             detached: false,
             ..Default::default()
         },

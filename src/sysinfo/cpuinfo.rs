@@ -6,6 +6,13 @@ pub struct CpuInfo {
     model_name: Option<String>,
 }
 
+impl CpuInfo {
+    #[must_use]
+    pub const fn is_bay_trail(&self) -> bool {
+        self.is_bay_trail
+    }
+}
+
 #[cfg(target_family = "windows")]
 mod windows {
     use super::CpuInfo;
