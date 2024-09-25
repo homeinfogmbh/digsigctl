@@ -3,6 +3,7 @@ use std::time::{Duration, SystemTime};
 use serde::Serialize;
 use sysinfo::{LoadAvg, System, Users};
 
+/// Uptime information of the system.
 #[derive(Debug, Serialize)]
 pub struct Uptime {
     time: SystemTime,
