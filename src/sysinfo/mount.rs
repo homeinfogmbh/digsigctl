@@ -35,11 +35,11 @@ impl TryFrom<[&str; 6]> for Mount {
             filesystem: filesystem.into(),
             flags: flags
                 .split(',')
-                .map(|flag| {
-                    let mut items = flag.split('=');
-                    let key = items.next().expect("no key found");
-                    let value = items.next();
-                    (key.to_string(), value.map(String::from))
+                .filter_map(|flag| {
+                    let mut items = flag.splitn(2, '=');
+                    items
+                        .next()
+                        .map(|key| (key.to_string(), items.next().map(String::from)))
                 })
                 .collect(),
             freq: freq.parse()?,
