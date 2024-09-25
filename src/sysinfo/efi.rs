@@ -5,6 +5,7 @@ use sysinfo::Disks;
 
 const EFI_PARTITION: &str = "/dev/disk/by-label/EFI";
 
+/// Information about the EFI partition.
 #[derive(Clone, Debug, Eq, PartialEq, Serialize)]
 pub struct Efi {
     mounted: bool,
