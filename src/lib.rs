@@ -1,3 +1,7 @@
+//! Digital signage client library.
+//!
+//! This library exposes functions and datastructures as used
+//! by the programs `digsigctl` and `fix-chromium-preferences`.
 mod config;
 mod constants;
 mod net;
