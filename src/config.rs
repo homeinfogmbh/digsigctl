@@ -7,20 +7,24 @@ pub use error::Error;
 use serde::Deserialize;
 use std::fmt::Debug;
 
+/// Configuration settings for the digital signage system.
 #[derive(Debug, Deserialize, Eq, PartialEq)]
 pub struct Config {
     url: String,
 }
 
 impl Config {
+    /// Returns the URL that shall be presented in the web browser for digital signage.
     #[must_use]
     pub fn url(&self) -> &str {
         self.url.as_str()
     }
 
-    /// Applies the configuration to the system
+    /// Applies the configuration to the system.
+    ///
     /// # Errors
-    /// Returns an [`digsigctl::config::Error`] if the configuration could not be applied
+    ///
+    /// Returns an [`digsigctl::config::Error`] if the configuration could not be applied.
     pub fn apply(&self) -> Result<(), anyhow::Error> {
         chromium::await_shutdown();
         self.update_chromium_preferences()?;
