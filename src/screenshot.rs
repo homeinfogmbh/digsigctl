@@ -42,7 +42,7 @@ impl From<anyhow::Result<Vec<u8>>> for ScreenshotResponse {
 #[cfg(target_family = "unix")]
 mod unix {
     use crate::systemctl;
-    use std::fs::File;
+    use std::fs::read;
     use std::io::Read;
     use subprocess::ExitStatus;
 
@@ -60,10 +60,7 @@ mod unix {
             .map_or(false, |exit_status| exit_status == ExitStatus::Exited(0))
         {}
 
-        let mut buffer = Vec::new();
-        let mut file = File::open(SCREENSHOT_FILE)?;
-        file.read_to_end(&mut buffer)?;
-        Ok(buffer)
+        Ok(read(SCREENSHOT_FILE)?)
     }
 }
 
