@@ -27,7 +27,7 @@ pub enum Command {
     ///
     /// The command takes an optional delay in seconds.
     /// The reboot will be deferred for the given amount of seconds, if provided
-    /// or will reboot immediately if `None` is passed.
+    /// or will be executed immediately if `None` is passed.
     #[serde(rename = "reboot")]
     Reboot(Option<u64>),
     /// Identify the system.
