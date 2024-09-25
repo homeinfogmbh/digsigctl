@@ -3,6 +3,11 @@ use std::fs::read_to_string;
 
 const PROC_MEMINFO: &str = "/proc/meminfo";
 
+/// Collects a hash map of entries in `/proc/meminfo`.
+///
+/// # Errors
+///
+/// This function will return an [`std::io::Error`] if `/proc/meminfo` could not be read.
 pub fn meminfo() -> Result<HashMap<String, usize>, std::io::Error> {
     Ok(read_to_string(PROC_MEMINFO)?
         .lines()
