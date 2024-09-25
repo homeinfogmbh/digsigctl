@@ -2,6 +2,10 @@ use crate::rpc::Result;
 use std::thread;
 use std::time::Duration;
 
+/// Reboots the system.
+///
+/// If `delay` is `None` the system will be rebooted immediately.
+/// Otherwise, the reboot is delayed for the given amount of seconds.
 pub fn reboot(delay: Option<u64>) -> Result {
     let _ = thread::spawn(move || {
         if let Some(delay) = delay {
