@@ -4,6 +4,9 @@ use std::path::PathBuf;
 use serde::Serialize;
 use sysinfo::Disk;
 
+/// Information about free disk space on the system.
+///
+/// Each `Entry` represents one filesystem on the system.
 #[derive(Clone, Debug, Eq, PartialEq, Serialize)]
 pub struct Entry {
     filesystem: String,
