@@ -33,6 +33,7 @@ pub enum Os {
     Windows,
 }
 
+/// Collected information about the local digital signage system the program is running on.
 #[derive(Debug, Serialize)]
 pub struct SystemInformation {
     os: Os,
