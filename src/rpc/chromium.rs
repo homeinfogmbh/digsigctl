@@ -23,7 +23,7 @@ mod unix {
 
     const CHROMIUM_DEFAULT_PREFERENCES: &str = ".config/chromium/Default/Preferences";
 
-    /// Returns the path to te default chromium preferences file.
+    /// Returns the path to te default Chromium preferences file.
     ///
     /// # Errors
     ///
