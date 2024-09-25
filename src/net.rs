@@ -7,7 +7,7 @@ use std::str::FromStr;
 /// Discovers a local IP address of the system within the network as specified by the `network`.
 ///
 /// This will exit the program, if the passed-in string is not a valid IP network
-/// or of no appropriate IP within that IP network can be found on the system.
+/// or if no appropriate IP within that IP network can be found on the system.
 #[must_use]
 pub fn discover_address_or_exit(network: &str) -> IpAddr {
     discover_address(IpNetwork::from_str(network).unwrap_or_else(|error| {
