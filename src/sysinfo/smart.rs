@@ -7,6 +7,11 @@ use std::process::{Child, Stdio};
 const SMARTCTL: &str = "/usr/bin/smartctl";
 const SMART_STATUS_PREFIX: &str = "SMART overall-health self-assessment test result:";
 
+/// Returns a child process running `smartctl`.
+///
+/// # Errors
+///
+/// This functions will return an [`std::io::Error`] if it fails to spawn the subcommand.
 pub fn smartctl(args: &[&str]) -> std::io::Result<Child> {
     let mut command = sudo(SMARTCTL);
     command.args(args);
@@ -15,6 +20,11 @@ pub fn smartctl(args: &[&str]) -> std::io::Result<Child> {
     command.spawn()
 }
 
+/// Returns an iterator of scanned device names.
+///
+/// # Errors
+///
+/// This functions will return an [`std::io::Error`] if it fails to spawn the subcommand.
 pub fn get_devices() -> std::io::Result<impl Iterator<Item = String>> {
     smartctl(&["--scan-open"])
         .and_then(Child::wait_with_output)
@@ -36,6 +46,11 @@ pub fn get_devices() -> std::io::Result<impl Iterator<Item = String>> {
         })
 }
 
+/// Returns the S.M.A.R.T. status of the given device as a string.
+///
+/// # Errors
+///
+/// This functions will return an [`std::io::Error`] if it fails to spawn the subcommand.
 pub fn check_device(device: &str) -> std::io::Result<Option<String>> {
     smartctl(&["-H", device])
         .and_then(Child::wait_with_output)
@@ -56,6 +71,11 @@ pub fn check_device(device: &str) -> std::io::Result<Option<String>> {
         })
 }
 
+/// Returns a hash map of the S.M.A.R.T. devices and their states as string.
+///
+/// # Errors
+///
+/// This functions will return an [`std::io::Error`] if it fails to spawn the subcommand.
 pub fn device_states() -> std::io::Result<HashMap<String, Option<String>>> {
     get_devices().map(|devices| {
         devices
