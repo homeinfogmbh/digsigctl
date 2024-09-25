@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use std::fs::read_to_string;
+use std::io::ErrorKind;
 use std::num::ParseIntError;
 use std::path::PathBuf;
 use std::str::FromStr;
@@ -71,12 +72,11 @@ pub fn mounts() -> std::io::Result<Vec<Mount>> {
 }
 
 pub fn root_mounted_ro() -> std::io::Result<bool> {
-    mounts().map(|mounts| {
+    mounts().and_then(|mounts| {
         mounts
             .iter()
             .find(|mount| mount.mountpoint == PathBuf::from("/"))
-            .expect("root not found")
-            .flags
-            .contains_key("ro")
+            .ok_or_else(|| std::io::Error::new(ErrorKind::Other, "root partition not found"))
+            .map(|mount| mount.flags.contains_key("ro"))
     })
 }
