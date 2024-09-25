@@ -13,6 +13,7 @@ use reboot::reboot;
 pub use result::Result;
 use serde::Deserialize;
 use std::fmt::Debug;
+use std::time::Duration;
 
 /// Available RPC commands.
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq)]
@@ -66,7 +67,7 @@ impl Command {
     pub fn run(&self) -> Result {
         match self {
             Self::Beep => beep(None),
-            Self::Reboot(delay) => reboot(*delay),
+            Self::Reboot(delay) => reboot(delay.map(Duration::from_secs)),
             Self::Identify => identify(),
             Self::ConfigFile => Result::Success(Box::new(
                 default_preferences_file().and_then(|path| path.to_str().map(ToString::to_string)),
