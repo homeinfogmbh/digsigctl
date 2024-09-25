@@ -12,12 +12,12 @@ pub fn meminfo() -> Result<HashMap<String, usize>, std::io::Error> {
                 .trim()
                 .split_once(' ')
                 .map_or(value.trim().parse::<usize>().ok(), |(value, unit)| {
-                    value.trim().parse::<usize>().ok().map(|value| {
-                        value
-                            * match unit.trim() {
-                                "kB" => 1024,
-                                unit => panic!("Unknown unit: {unit}"),
-                            }
+                    value.trim().parse::<usize>().ok().and_then(|value| {
+                        match unit.trim() {
+                            "kB" => Some(1024),
+                            _ => None,
+                        }
+                        .map(|factor| factor * value)
                     })
                 })
                 .map(|value| (key.trim().to_string(), value))
