@@ -8,6 +8,7 @@ pub use unix::take_screenshot;
 #[cfg(target_family = "windows")]
 pub use windows::take_screenshot;
 
+/// Response type that contains a screenshot as binary data.
 #[allow(clippy::module_name_repetitions)]
 #[derive(Debug)]
 pub struct ScreenshotResponse(anyhow::Result<Vec<u8>>);
