@@ -28,7 +28,7 @@ pub fn discover_address_or_exit(network: &str) -> IpAddr {
 /// # Errors
 /// This function will return `None` if no appropriate IP address could be found on the system.
 #[must_use]
-pub fn discover_address(network: IpNetwork) -> Option<IpAddr> {
+fn discover_address(network: IpNetwork) -> Option<IpAddr> {
     if let Ok(network_interfaces) = list_afinet_netifas() {
         for (_, ip) in network_interfaces {
             if network.contains(ip) {
