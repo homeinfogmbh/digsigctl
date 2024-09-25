@@ -10,6 +10,7 @@ use serde::Serialize;
 
 const MOUNTS: &str = "/proc/mounts";
 
+/// Information about a mounted file system.
 #[derive(Clone, Debug, Eq, PartialEq, Serialize)]
 pub struct Mount {
     #[serde(rename = "what")]
@@ -62,6 +63,11 @@ impl FromStr for Mount {
     }
 }
 
+/// Collect mounts of local file systems.
+///
+/// # Error
+///
+/// This function will return an [`std::io::Error`] if `/proc/mounts` could not be read.
 pub fn mounts() -> std::io::Result<Vec<Mount>> {
     read_to_string(MOUNTS).map(|mounts| {
         mounts
@@ -71,6 +77,11 @@ pub fn mounts() -> std::io::Result<Vec<Mount>> {
     })
 }
 
+/// Determines whether the root partition (`/`) is mounted read-only.
+///
+/// # Error
+///
+/// This function will return an [`std::io::Error`] if `/proc/mounts` could not be read.
 pub fn root_mounted_ro() -> std::io::Result<bool> {
     mounts().and_then(|mounts| {
         mounts
