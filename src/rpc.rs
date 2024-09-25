@@ -31,6 +31,10 @@ pub enum Command {
 }
 
 impl Command {
+    /// Runs the RPC command.
+    ///
+    /// This will return a [`Result`], that will either represent success
+    /// or a list of errors that occurred while executing the RPC command.
     #[must_use]
     pub fn run(&self) -> Result {
         match self {
