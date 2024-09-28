@@ -69,14 +69,8 @@ fn check_device_from_text(text: impl AsRef<str>) -> Option<String> {
         .map(String::from)
         .collect::<Vec<_>>()
         .into_iter()
-        .find_map(|line| {
-            if line.trim().starts_with(SMART_STATUS_PREFIX) {
-                Some(line)
-            } else {
-                None
-            }
-            .and_then(|line| line.split(':').nth(1).map(str::trim).map(String::from))
-        })
+        .filter(|line| line.trim().starts_with(SMART_STATUS_PREFIX))
+        .find_map(|line| line.split(':').nth(1).map(str::trim).map(String::from))
 }
 
 /// Returns a hash map of the S.M.A.R.T. devices and their states as string.
