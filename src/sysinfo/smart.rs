@@ -70,7 +70,7 @@ fn check_device_from_text(text: impl AsRef<str>) -> Option<String> {
             } else {
                 None
             }
-            .and_then(|line| line.split(':').nth(1).map(String::from))
+            .and_then(|line| line.split(':').nth(1).map(str::trim).map(String::from))
         })
 }
 
@@ -109,6 +109,6 @@ SMART overall-health self-assessment test result: PASSED
     fn test_check_device() {
         let status = check_device_from_text(SMARTCTL_H);
 
-        assert_eq!(status.as_deref(), Some(" PASSED"));
+        assert_eq!(status.as_deref(), Some("PASSED"));
     }
 }
