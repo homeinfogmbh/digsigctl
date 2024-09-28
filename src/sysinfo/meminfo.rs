@@ -1,3 +1,4 @@
+use rocket::warn;
 use std::collections::HashMap;
 use std::fs::read_to_string;
 use std::path::Path;
@@ -30,7 +31,10 @@ fn meminfo_from_text(text: impl AsRef<str>) -> HashMap<String, usize> {
                     value.trim().parse::<usize>().ok().and_then(|value| {
                         match unit.trim() {
                             "kB" => Some(KIB),
-                            _ => None,
+                            other => {
+                                warn!("unknown unit: {other}");
+                                None
+                            }
                         }
                         .map(|factor| factor * value)
                     })
