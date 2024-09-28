@@ -3,6 +3,7 @@ use std::fs::read_to_string;
 use std::path::Path;
 
 const PROC_MEMINFO: &str = "/proc/meminfo";
+const KIB: usize = 1024; // Kibibytes.
 
 /// Collects a hash map of entries in `/proc/meminfo`.
 ///
@@ -28,7 +29,7 @@ fn meminfo_from_text(text: impl AsRef<str>) -> HashMap<String, usize> {
                 .map_or(value.trim().parse::<usize>().ok(), |(value, unit)| {
                     value.trim().parse::<usize>().ok().and_then(|value| {
                         match unit.trim() {
-                            "kB" => Some(1024),
+                            "kB" => Some(KIB),
                             _ => None,
                         }
                         .map(|factor| factor * value)
@@ -41,7 +42,7 @@ fn meminfo_from_text(text: impl AsRef<str>) -> HashMap<String, usize> {
 
 #[cfg(test)]
 mod tests {
-    use super::meminfo_from_text;
+    use super::{meminfo_from_text, KIB};
 
     const MEMINFO_TEXT: &str = r"MemTotal:        8001412 kB
 MemFree:          136304 kB
@@ -107,12 +108,12 @@ DirectMap1G:     2097152 kB
         let meminfo = meminfo_from_text(MEMINFO_TEXT);
 
         // Test some samples of the above /proc/meninfo dump.
-        assert_eq!(meminfo.get("MemFree").copied(), Some(136_304 * 1024));
-        assert_eq!(meminfo.get("MemAvailable").copied(), Some(109_900 * 1024));
-        assert_eq!(meminfo.get("Buffers").copied(), Some(1280 * 1024));
-        assert_eq!(meminfo.get("Cached").copied(), Some(1_176_668 * 1024));
+        assert_eq!(meminfo.get("MemFree").copied(), Some(136_304 * KIB));
+        assert_eq!(meminfo.get("MemAvailable").copied(), Some(109_900 * KIB));
+        assert_eq!(meminfo.get("Buffers").copied(), Some(1280 * KIB));
+        assert_eq!(meminfo.get("Cached").copied(), Some(1_176_668 * KIB));
         assert_eq!(meminfo.get("SwapCached").copied(), Some(0));
         assert_eq!(meminfo.get("HugePages_Total").copied(), Some(0));
-        assert_eq!(meminfo.get("DirectMap1G").copied(), Some(2_097_152 * 1024));
+        assert_eq!(meminfo.get("DirectMap1G").copied(), Some(2_097_152 * KIB));
     }
 }
