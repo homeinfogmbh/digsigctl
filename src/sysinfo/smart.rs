@@ -2,7 +2,9 @@ use crate::sudo::sudo;
 use crate::try_from_io::TryFromIo;
 use rocket::log::private::error;
 use std::collections::HashMap;
+use std::iter::FilterMap;
 use std::process::{Child, Stdio};
+use std::vec::IntoIter;
 
 const SMARTCTL: &str = "/usr/bin/smartctl";
 const SMART_STATUS_PREFIX: &str = "SMART overall-health self-assessment test result:";
@@ -29,21 +31,24 @@ pub fn get_devices() -> std::io::Result<impl Iterator<Item = String>> {
     smartctl(&["--scan-open"])
         .and_then(Child::wait_with_output)
         .and_then(|output| String::try_from_io(output.stdout))
-        .map(|text| {
-            text.lines()
-                .map(String::from)
-                .collect::<Vec<_>>()
-                .into_iter()
-                .filter_map(|line| {
-                    let line = line.trim();
-                    if line.is_empty() {
-                        None
-                    } else {
-                        Some(line.to_string())
-                    }
-                })
-                .filter_map(|line| line.split_whitespace().next().map(String::from))
+        .map(get_devices_from_text)
+}
+
+fn get_devices_from_text(text: impl AsRef<str>) -> impl Iterator<Item = String> {
+    text.as_ref()
+        .lines()
+        .map(String::from)
+        .collect::<Vec<_>>()
+        .into_iter()
+        .filter_map(|line| {
+            let line = line.trim();
+            if line.is_empty() {
+                None
+            } else {
+                Some(line.to_string())
+            }
         })
+        .filter_map(|line| line.split_whitespace().next().map(String::from))
 }
 
 /// Returns the S.M.A.R.T. status of the given device as a string.
@@ -94,7 +99,7 @@ pub fn device_states() -> std::io::Result<HashMap<String, Option<String>>> {
 
 #[cfg(test)]
 mod tests {
-    use super::check_device_from_text;
+    use super::{check_device_from_text, get_devices_from_text};
 
     const SMARTCTL_H: &str =
         "smartctl 7.4 2023-08-01 r5530 [x86_64-linux-6.10.10-arch1-1] (local build)
@@ -105,10 +110,20 @@ SMART overall-health self-assessment test result: PASSED
 
 ";
 
+    const SMARTCTL_SCAN_OPEN: &str = "/dev/sda -d sat # /dev/sda [SAT], ATA device";
+
     #[test]
     fn test_check_device() {
         let status = check_device_from_text(SMARTCTL_H);
 
         assert_eq!(status.as_deref(), Some("PASSED"));
+    }
+
+    #[test]
+    fn test_get_devices_from_text() {
+        let mut status = get_devices_from_text(SMARTCTL_SCAN_OPEN);
+
+        assert_eq!(status.next().as_deref(), Some("/dev/sda"));
+        assert_eq!(status.next().as_deref(), None);
     }
 }
