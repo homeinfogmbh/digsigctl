@@ -115,5 +115,6 @@ DirectMap1G:     2097152 kB
         assert_eq!(meminfo.get("SwapCached").copied(), Some(0));
         assert_eq!(meminfo.get("HugePages_Total").copied(), Some(0));
         assert_eq!(meminfo.get("DirectMap1G").copied(), Some(2_097_152 * KIB));
+        assert_eq!(meminfo.get("NoSuchKey").copied(), None);
     }
 }
