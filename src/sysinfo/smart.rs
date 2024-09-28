@@ -55,19 +55,22 @@ pub fn check_device(device: &str) -> std::io::Result<Option<String>> {
     smartctl(&["-H", device])
         .and_then(Child::wait_with_output)
         .and_then(|output| String::try_from_io(output.stdout))
-        .map(|text| {
-            text.lines()
-                .map(String::from)
-                .collect::<Vec<_>>()
-                .into_iter()
-                .find_map(|line| {
-                    if line.trim().starts_with(SMART_STATUS_PREFIX) {
-                        Some(line)
-                    } else {
-                        None
-                    }
-                    .and_then(|line| line.split(':').nth(1).map(String::from))
-                })
+        .map(check_device_from_text)
+}
+
+fn check_device_from_text(text: impl AsRef<str>) -> Option<String> {
+    text.as_ref()
+        .lines()
+        .map(String::from)
+        .collect::<Vec<_>>()
+        .into_iter()
+        .find_map(|line| {
+            if line.trim().starts_with(SMART_STATUS_PREFIX) {
+                Some(line)
+            } else {
+                None
+            }
+            .and_then(|line| line.split(':').nth(1).map(String::from))
         })
 }
 
@@ -87,4 +90,25 @@ pub fn device_states() -> std::io::Result<HashMap<String, Option<String>>> {
             })
             .collect()
     })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::check_device_from_text;
+
+    const SMARTCTL_H: &str =
+        "smartctl 7.4 2023-08-01 r5530 [x86_64-linux-6.10.10-arch1-1] (local build)
+Copyright (C) 2002-23, Bruce Allen, Christian Franke, www.smartmontools.org
+
+=== START OF READ SMART DATA SECTION ===
+SMART overall-health self-assessment test result: PASSED
+
+";
+
+    #[test]
+    fn test_check_device() {
+        let status = check_device_from_text(SMARTCTL_H);
+
+        assert_eq!(status.as_deref(), Some(" PASSED"));
+    }
 }
