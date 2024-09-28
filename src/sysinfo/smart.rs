@@ -66,9 +66,6 @@ pub fn check_device(device: &str) -> std::io::Result<Option<String>> {
 fn check_device_from_text(text: impl AsRef<str>) -> Option<String> {
     text.as_ref()
         .lines()
-        .map(String::from)
-        .collect::<Vec<_>>()
-        .into_iter()
         .filter(|line| line.trim().starts_with(SMART_STATUS_PREFIX))
         .find_map(|line| line.split(':').nth(1).map(str::trim).map(String::from))
 }
