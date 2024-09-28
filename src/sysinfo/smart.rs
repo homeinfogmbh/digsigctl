@@ -27,28 +27,20 @@ pub fn smartctl(args: &[&str]) -> std::io::Result<Child> {
 /// # Errors
 ///
 /// This functions will return an [`std::io::Error`] if it fails to spawn the subcommand.
-pub fn get_devices() -> std::io::Result<impl Iterator<Item = String>> {
+pub fn get_devices() -> std::io::Result<Vec<String>> {
     smartctl(&["--scan-open"])
         .and_then(Child::wait_with_output)
         .and_then(|output| String::try_from_io(output.stdout))
         .map(get_devices_from_text)
 }
 
-fn get_devices_from_text(text: impl AsRef<str>) -> impl Iterator<Item = String> {
+fn get_devices_from_text(text: impl AsRef<str>) -> Vec<String> {
     text.as_ref()
         .lines()
-        .map(String::from)
-        .collect::<Vec<_>>()
-        .into_iter()
-        .filter_map(|line| {
-            let line = line.trim();
-            if line.is_empty() {
-                None
-            } else {
-                Some(line.to_string())
-            }
-        })
+        .map(str::trim)
+        .filter(|line| !line.is_empty())
         .filter_map(|line| line.split_whitespace().next().map(String::from))
+        .collect()
 }
 
 /// Returns the S.M.A.R.T. status of the given device as a string.
@@ -78,6 +70,7 @@ fn check_device_from_text(text: impl AsRef<str>) -> Option<String> {
 pub fn device_states() -> std::io::Result<HashMap<String, Option<String>>> {
     get_devices().map(|devices| {
         devices
+            .into_iter()
             .filter_map(|device| {
                 check_device(&device)
                     .inspect_err(|error| error!("{error}"))
@@ -112,9 +105,13 @@ SMART overall-health self-assessment test result: PASSED
 
     #[test]
     fn test_get_devices_from_text() {
-        let mut status = get_devices_from_text(SMARTCTL_SCAN_OPEN);
+        let status = get_devices_from_text(SMARTCTL_SCAN_OPEN);
+        let target_value = "/dev/sda";
 
-        assert_eq!(status.next().as_deref(), Some("/dev/sda"));
-        assert_eq!(status.next().as_deref(), None);
+        assert_eq!(status.len(), 1);
+
+        for item in status {
+            assert_eq!(item.as_str(), target_value);
+        }
     }
 }
