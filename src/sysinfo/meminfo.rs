@@ -22,24 +22,25 @@ fn meminfo_from_file(filename: impl AsRef<Path>) -> std::io::Result<HashMap<Stri
 fn meminfo_from_text(text: impl AsRef<str>) -> HashMap<String, usize> {
     text.as_ref()
         .lines()
-        .filter_map(|line| line.split_once(':'))
-        .filter_map(|(key, value)| {
-            value
-                .trim()
-                .split_once(' ')
-                .map_or(value.trim().parse::<usize>().ok(), |(value, unit)| {
-                    value.trim().parse::<usize>().ok().and_then(|value| {
-                        match unit.trim() {
-                            "kB" => Some(KIB),
-                            other => {
-                                warn!("unknown unit: {other}");
-                                None
+        .filter_map(|line| {
+            line.split_once(':').and_then(|(key, value)| {
+                value
+                    .trim()
+                    .split_once(' ')
+                    .map_or(value.trim().parse::<usize>().ok(), |(value, unit)| {
+                        value.trim().parse::<usize>().ok().and_then(|value| {
+                            match unit.trim() {
+                                "kB" => Some(KIB),
+                                other => {
+                                    warn!("unknown unit: {other}");
+                                    None
+                                }
                             }
-                        }
-                        .map(|factor| factor * value)
+                            .map(|factor| factor * value)
+                        })
                     })
-                })
-                .map(|value| (key.trim().to_string(), value))
+                    .map(|value| (key.trim().to_string(), value))
+            })
         })
         .collect()
 }
