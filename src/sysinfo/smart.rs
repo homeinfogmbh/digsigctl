@@ -2,9 +2,7 @@ use crate::sudo::sudo;
 use crate::try_from_io::TryFromIo;
 use rocket::log::private::error;
 use std::collections::HashMap;
-use std::iter::FilterMap;
 use std::process::{Child, Stdio};
-use std::vec::IntoIter;
 
 const SMARTCTL: &str = "/usr/bin/smartctl";
 const SMART_STATUS_PREFIX: &str = "SMART overall-health self-assessment test result:";

@@ -43,7 +43,6 @@ impl From<anyhow::Result<Vec<u8>>> for ScreenshotResponse {
 mod unix {
     use crate::systemctl;
     use std::fs::read;
-    use std::io::Read;
     use subprocess::ExitStatus;
 
     const SCREENSHOT_SERVICE: &str = "screenshot.service";
