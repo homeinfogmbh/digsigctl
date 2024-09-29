@@ -24,25 +24,32 @@ fn meminfo_from_text(text: impl AsRef<str>) -> HashMap<String, usize> {
         .lines()
         .filter_map(|line| {
             line.split_once(':').and_then(|(key, value)| {
-                value
-                    .trim()
-                    .split_once(' ')
-                    .map_or(value.trim().parse::<usize>().ok(), |(value, unit)| {
-                        value.trim().parse::<usize>().ok().and_then(|value| {
-                            match unit.trim() {
-                                "kB" => Some(KIB),
-                                other => {
-                                    warn!("unknown unit: {other}");
-                                    None
-                                }
-                            }
-                            .map(|factor| factor * value)
-                        })
-                    })
-                    .map(|value| (key.trim().to_string(), value))
+                parse_value(value).map(|value| (key.trim().to_string(), value))
             })
         })
         .collect()
+}
+
+fn parse_value(value: &str) -> Option<usize> {
+    value
+        .trim()
+        .split_once(' ')
+        .map_or(value.trim().parse::<usize>().ok(), |(value, unit)| {
+            parse_value_with_unit(value, unit)
+        })
+}
+
+fn parse_value_with_unit(value: &str, unit: &str) -> Option<usize> {
+    value.trim().parse::<usize>().ok().and_then(|value| {
+        match unit.trim() {
+            "kB" => Some(KIB),
+            other => {
+                warn!("unknown unit: {other}");
+                None
+            }
+        }
+        .map(|factor| factor * value)
+    })
 }
 
 #[cfg(test)]
