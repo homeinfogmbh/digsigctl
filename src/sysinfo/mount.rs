@@ -35,15 +35,7 @@ impl TryFrom<[&str; 6]> for Mount {
             device: device.into(),
             mountpoint: mountpoint.into(),
             filesystem: filesystem.into(),
-            flags: flags
-                .split(',')
-                .filter_map(|flag| {
-                    let mut items = flag.splitn(2, '=');
-                    items
-                        .next()
-                        .map(|key| (key.to_string(), items.next().map(String::from)))
-                })
-                .collect(),
+            flags: parse_flags(flags),
             freq: freq.parse()?,
             pass_no: pass_no.parse()?,
         })
@@ -90,4 +82,16 @@ pub fn root_mounted_ro() -> std::io::Result<bool> {
             .ok_or_else(|| std::io::Error::new(ErrorKind::Other, "root partition not found"))
             .map(|mount| mount.flags.contains_key("ro"))
     })
+}
+
+fn parse_flags(flags: &str) -> HashMap<String, Option<String>> {
+    flags
+        .split(',')
+        .filter_map(|flag| {
+            let mut items = flag.splitn(2, '=');
+            items
+                .next()
+                .map(|key| (key.to_string(), items.next().map(String::from)))
+        })
+        .collect()
 }
