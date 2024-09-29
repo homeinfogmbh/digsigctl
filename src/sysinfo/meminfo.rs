@@ -40,16 +40,21 @@ fn parse_value(value: &str) -> Option<usize> {
 }
 
 fn parse_value_with_unit(value: &str, unit: &str) -> Option<usize> {
-    value.trim().parse::<usize>().ok().and_then(|value| {
-        match unit.trim() {
-            "kB" => Some(KIB),
-            other => {
-                warn!("unknown unit: {other}");
-                None
-            }
+    value
+        .trim()
+        .parse::<usize>()
+        .ok()
+        .and_then(|value| parse_unit(unit).map(|factor| factor * value))
+}
+
+fn parse_unit(unit: &str) -> Option<usize> {
+    match unit.trim() {
+        "kB" => Some(KIB),
+        other => {
+            warn!("unknown unit: {other}");
+            None
         }
-        .map(|factor| factor * value)
-    })
+    }
 }
 
 #[cfg(test)]
