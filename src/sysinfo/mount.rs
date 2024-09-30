@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use std::fs::read_to_string;
+use std::io::ErrorKind;
 use std::num::ParseIntError;
 use std::path::PathBuf;
 use std::str::FromStr;
@@ -9,6 +10,7 @@ use serde::Serialize;
 
 const MOUNTS: &str = "/proc/mounts";
 
+/// Information about a mounted file system.
 #[derive(Clone, Debug, Eq, PartialEq, Serialize)]
 pub struct Mount {
     #[serde(rename = "what")]
@@ -33,15 +35,7 @@ impl TryFrom<[&str; 6]> for Mount {
             device: device.into(),
             mountpoint: mountpoint.into(),
             filesystem: filesystem.into(),
-            flags: flags
-                .split(',')
-                .map(|flag| {
-                    let mut items = flag.split('=');
-                    let key = items.next().expect("no key found");
-                    let value = items.next();
-                    (key.to_string(), value.map(String::from))
-                })
-                .collect(),
+            flags: parse_flags(flags),
             freq: freq.parse()?,
             pass_no: pass_no.parse()?,
         })
@@ -61,6 +55,11 @@ impl FromStr for Mount {
     }
 }
 
+/// Collect mounts of local file systems.
+///
+/// # Error
+///
+/// This function will return an [`std::io::Error`] if `/proc/mounts` could not be read.
 pub fn mounts() -> std::io::Result<Vec<Mount>> {
     read_to_string(MOUNTS).map(|mounts| {
         mounts
@@ -70,13 +69,29 @@ pub fn mounts() -> std::io::Result<Vec<Mount>> {
     })
 }
 
+/// Determines whether the root partition (`/`) is mounted read-only.
+///
+/// # Error
+///
+/// This function will return an [`std::io::Error`] if `/proc/mounts` could not be read.
 pub fn root_mounted_ro() -> std::io::Result<bool> {
-    mounts().map(|mounts| {
+    mounts().and_then(|mounts| {
         mounts
             .iter()
             .find(|mount| mount.mountpoint == PathBuf::from("/"))
-            .expect("root not found")
-            .flags
-            .contains_key("ro")
+            .ok_or_else(|| std::io::Error::new(ErrorKind::Other, "root partition not found"))
+            .map(|mount| mount.flags.contains_key("ro"))
     })
+}
+
+fn parse_flags(flags: &str) -> HashMap<String, Option<String>> {
+    flags
+        .split(',')
+        .filter_map(|flag| {
+            let mut items = flag.splitn(2, '=');
+            items
+                .next()
+                .map(|key| (key.to_string(), items.next().map(String::from)))
+        })
+        .collect()
 }

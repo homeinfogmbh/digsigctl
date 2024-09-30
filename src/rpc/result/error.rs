@@ -66,7 +66,7 @@ pub struct Errors {
 }
 
 impl Errors {
-    pub fn new(errors: Vec<Error>, status: Status) -> Self {
+    pub const fn new(errors: Vec<Error>, status: Status) -> Self {
         Self { errors, status }
     }
 

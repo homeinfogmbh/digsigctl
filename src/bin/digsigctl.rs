@@ -1,4 +1,6 @@
-#![allow(clippy::let_underscore_untyped, clippy::no_effect_underscore_binding)]
+//! Digital signage system controller.
+//!
+//! This program is intended to run on digital signage systems and act as an RPC server.
 
 use clap::Parser;
 use digsigctl::{
@@ -22,6 +24,7 @@ struct Args {
 fn rocket() -> Rocket<Build> {
     let args = Args::parse();
 
+    #[allow(clippy::redundant_type_annotations)]
     rocket::custom(
         rocket::Config::figment()
             .merge(("port", args.port))

@@ -7,7 +7,7 @@ pub fn beep(melody: Option<Melody>) -> Result {
     melody
         .unwrap_or_default()
         .play()
-        .map_or_else(std::convert::Into::into, |()| Result::Success(Box::new(())))
+        .map_or_else(Into::into, |()| Result::Success(Box::new(())))
 }
 
 #[cfg(target_family = "windows")]

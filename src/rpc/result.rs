@@ -8,8 +8,15 @@ use std::ops::Add;
 
 mod error;
 
+/// A result of an RPC call, which can either be successful or result in an error.
 pub enum Result {
+    /// The RPC call was successful.
+    ///
+    /// The return data is wrapped as a dynamic serializable in a `Box`.
     Success(Box<dyn erased_serde::Serialize>),
+    /// The RPC call failed.
+    ///
+    /// Details about the errors that occurred can be read from the `Errors` struct.
     Error(Errors),
 }
 

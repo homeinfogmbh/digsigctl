@@ -25,7 +25,7 @@ mod unix {
             |error| Result::Error(error.to_string().into()),
             |hostname| {
                 x_message(hostname.trim(), X_MESSAGE_TIMEOUT_SEC)
-                    .map_or_else(std::convert::Into::into, |_| Result::Success(Box::new(())))
+                    .map_or_else(Into::into, |_| Result::Success(Box::new(())))
             },
         )
     }

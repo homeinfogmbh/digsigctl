@@ -23,6 +23,11 @@ mod unix {
 
     const CHROMIUM_DEFAULT_PREFERENCES: &str = ".config/chromium/Default/Preferences";
 
+    /// Returns the path to te default Chromium preferences file.
+    ///
+    /// # Errors
+    ///
+    /// If the `$HOME` directory is not set, this will return `None`.
     #[must_use]
     pub fn default_preferences_file() -> Option<PathBuf> {
         home_dir().map(|home| home.join(CHROMIUM_DEFAULT_PREFERENCES))
