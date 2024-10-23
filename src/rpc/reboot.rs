@@ -2,10 +2,14 @@ use crate::rpc::Result;
 use std::thread;
 use std::time::Duration;
 
-pub fn reboot(delay: Option<u64>) -> Result {
+/// Reboots the system.
+///
+/// If `delay` is `None` the system will be rebooted immediately.
+/// Otherwise, the reboot is delayed for the given duration.
+pub fn reboot(delay: Option<Duration>) -> Result {
     let _ = thread::spawn(move || {
         if let Some(delay) = delay {
-            thread::sleep(Duration::from_secs(delay));
+            thread::sleep(delay);
         }
 
         system_shutdown::reboot().unwrap_or_else(|error| eprintln!("Could not reboot: {error}"));

@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
 
+/// Information about the system's CPU.
 #[derive(Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct CpuInfo {
     is_bay_trail: bool,
@@ -7,6 +8,7 @@ pub struct CpuInfo {
 }
 
 impl CpuInfo {
+    /// Returns `true` if the systems runs on an Intel Baytrail™ CPU, else `false`.
     #[must_use]
     pub const fn is_bay_trail(&self) -> bool {
         self.is_bay_trail
@@ -32,6 +34,7 @@ mod windows {
 mod unix {
     use super::CpuInfo;
 
+    /// Non-exhaustive list of Intel Baytrail™ CPU models.
     const BAY_TRAIL_CPUS: [&str; 46] = [
         "A1020", "E3805", "E3815", "E3825", "E3826", "E3827", "E3845", "J1750", "J1800", "J1850",
         "J1900", "J2850", "J2900", "N2805", "N2806", "N2807", "N2808", "N2810", "N2815", "N2820",

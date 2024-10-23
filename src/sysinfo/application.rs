@@ -6,6 +6,9 @@ use serde::Serialize;
 use subprocess::ExitStatus;
 
 const SERVICES_DIR: &str = "/usr/lib/systemd/system";
+/// Preference of the applications.
+///
+/// When determining the application status, the active units will be checked in this order.
 const APPLICATION_PREFERENCE: [Application; 5] = [
     Application::Html,
     Application::Air,
@@ -14,14 +17,21 @@ const APPLICATION_PREFERENCE: [Application; 5] = [
     Application::Off,
 ];
 
+/// Representation of the application mode in the system information.
 #[derive(Clone, Debug, Eq, PartialEq, Serialize)]
 pub enum Mode {
+    /// The system is configured to show the digital signage application.
     #[serde(rename(serialize = "PRODUCTIVE"))]
     Productive,
+    /// The system is configured to display installation instructions.
     #[serde(rename(serialize = "INSTALLATION_INSTRUCTIONS"))]
     InstallationInstructions,
+    /// The system is showing the "Not configured" warning message.
     #[serde(rename(serialize = "NOT_CONFIGURED"))]
     NotConfigured,
+    /// None of the above is displayed.
+    ///
+    /// This usually indicates a black screen.
     #[serde(rename(serialize = "OFF"))]
     Off,
 }

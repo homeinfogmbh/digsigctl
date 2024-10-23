@@ -1,7 +1,7 @@
-use std::collections::HashMap;
-
+use rocket::log::private::warn;
 use rocket::serde::json::serde_json;
 use serde::Serialize;
+use std::collections::HashMap;
 use sysinfo::Disks;
 
 use crate::sysinfo::smart::device_states;
@@ -33,6 +33,7 @@ pub enum Os {
     Windows,
 }
 
+/// Collected information about the local digital signage system the program is running on.
 #[derive(Debug, Serialize)]
 pub struct SystemInformation {
     os: Os,
@@ -67,7 +68,11 @@ impl Default for SystemInformation {
             df: Disks::new_with_refreshed_list()
                 .list()
                 .iter()
-                .map(Entry::from)
+                .filter_map(|disk| {
+                    Entry::try_from(disk)
+                        .inspect_err(|_| warn!("Invalid entry: {disk:?}"))
+                        .ok()
+                })
                 .collect(),
             mem_info: meminfo().ok(),
             root_ro: root_mounted_ro().ok(),

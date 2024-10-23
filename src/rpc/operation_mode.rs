@@ -6,14 +6,29 @@ use crate::systemctl::{enable_and_start, is_enabled_or_active, stop_and_disable}
 use serde::{Deserialize, Serialize};
 use subprocess::ExitStatus;
 
+/// Operation mode of the system.
+///
+/// This determines what will be shown on the system's display.
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub enum OperationMode {
+    /// The Chromium web browser will be started.
+    ///
+    /// This is used for normal digital signage operations.
     #[serde(rename = "chromium")]
     Chromium,
+    /// Installation instructions will be shown on the screen.
+    ///
+    /// This is the default for systems that have not yet been set to production mode.
     #[serde(rename = "installationInstructions")]
     InstallationInstructions,
+    /// A warning message that the system is not configured will be shown.
+    ///
+    /// This is the default after installing a `HIDSL` image onto the system.
     #[serde(rename = "unconfiguredWarning")]
     UnconfiguredWarning,
+    /// The screen is turned black.
+    ///
+    /// This may be done to temporarily disable digital signage.
     #[serde(rename = "blackScreen")]
     BlackScreen,
 }

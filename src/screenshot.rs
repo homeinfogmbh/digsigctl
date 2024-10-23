@@ -8,6 +8,7 @@ pub use unix::take_screenshot;
 #[cfg(target_family = "windows")]
 pub use windows::take_screenshot;
 
+/// Response type that contains a screenshot as binary data.
 #[allow(clippy::module_name_repetitions)]
 #[derive(Debug)]
 pub struct ScreenshotResponse(anyhow::Result<Vec<u8>>);
@@ -41,8 +42,7 @@ impl From<anyhow::Result<Vec<u8>>> for ScreenshotResponse {
 #[cfg(target_family = "unix")]
 mod unix {
     use crate::systemctl;
-    use std::fs::File;
-    use std::io::Read;
+    use std::fs::read;
     use subprocess::ExitStatus;
 
     const SCREENSHOT_SERVICE: &str = "screenshot.service";
@@ -59,10 +59,7 @@ mod unix {
             .map_or(false, |exit_status| exit_status == ExitStatus::Exited(0))
         {}
 
-        let mut buffer = Vec::new();
-        let mut file = File::open(SCREENSHOT_FILE)?;
-        file.read_to_end(&mut buffer)?;
-        Ok(buffer)
+        Ok(read(SCREENSHOT_FILE)?)
     }
 }
 

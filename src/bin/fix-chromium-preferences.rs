@@ -1,3 +1,5 @@
+//! This program is installed on digital signage systems to fix potentially
+//! broken preferences files for the Chromium web browser.
 use clap::Parser;
 use digsigctl::{default_preferences_file, ChromiumPreferences};
 use std::path::PathBuf;
