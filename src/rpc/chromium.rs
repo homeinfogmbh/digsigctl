@@ -52,8 +52,9 @@ mod unix {
 #[cfg(target_family = "windows")]
 mod windows {
     use std::env::var;
+    use std::ffi::OsStr;
     use std::path::PathBuf;
-    use sysinfo::{ProcessExt, SystemExt};
+    use sysinfo::{Process, System};
 
     const CHROME_DEFAULT_PREFERENCES: &str = r"Google\Chrome\User Data\Default\Preferences";
 
@@ -65,7 +66,7 @@ mod windows {
     }
 
     pub fn stop() -> bool {
-        for process in sysinfo::System::new().processes_by_name("Google Chrome") {
+        for process in System::new().processes_by_name(OsStr::new("Google Chrome")) {
             process.kill();
         }
 
@@ -73,8 +74,8 @@ mod windows {
     }
 
     pub fn is_running() -> bool {
-        !sysinfo::System::new()
-            .processes_by_name("Google Chrome")
+        !System::new()
+            .processes_by_name(OsStr::new("Google Chrome"))
             .collect::<Vec<_>>()
             .is_empty()
     }

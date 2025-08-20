@@ -14,6 +14,12 @@ pub struct Config {
 }
 
 impl Config {
+    /// Creates a new configuration with the specified URL.
+    #[must_use]
+    pub fn new(url: String) -> Self {
+        Self { url }
+    }
+
     /// Returns the URL that shall be presented in the web browser for digital signage.
     #[must_use]
     pub fn url(&self) -> &str {

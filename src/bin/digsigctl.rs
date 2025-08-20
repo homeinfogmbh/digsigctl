@@ -5,10 +5,12 @@
 use clap::Parser;
 use digsigctl::{
     discover_address_or_exit, take_screenshot, Command, Config, Result, ScreenshotResponse,
-    SystemInformation,
+    SystemInformation, apply_portal_config_if_needed, verify_startup_page,
 };
 use rocket::serde::json::Json;
 use rocket::{get, launch, post, routes, Build, Rocket};
+use std::thread;
+use tokio::runtime::Runtime;
 
 #[derive(Parser)]
 #[clap(about, author, version)]
@@ -24,13 +26,45 @@ struct Args {
 fn rocket() -> Rocket<Build> {
     let args = Args::parse();
 
+    // Run portal verification on startup in a separate thread
+    // Only apply configuration if the portal URL doesn't match the current startup page
+    thread::spawn(|| {
+        let rt = Runtime::new().unwrap();
+        rt.block_on(async {
+            match verify_startup_page().await {
+                Ok(matches) => {
+                    if !matches {
+                        // Only apply configuration if there's a mismatch
+                        match apply_portal_config_if_needed().await {
+                            Ok(applied) => {
+                                if applied {
+                                    eprintln!("Portal configuration applied on startup - URL mismatch detected");
+                                } else {
+                                    eprintln!("Portal configuration not needed - URL already matches");
+                                }
+                            }
+                            Err(e) => {
+                                eprintln!("Failed to apply portal config on startup: {}", e);
+                            }
+                        }
+                    } else {
+                        eprintln!("Portal configuration not needed - URL already matches");
+                    }
+                }
+                Err(e) => {
+                    eprintln!("Failed to verify startup page on startup: {}", e);
+                }
+            }
+        });
+    });
+
     #[allow(clippy::redundant_type_annotations)]
     rocket::custom(
         rocket::Config::figment()
             .merge(("port", args.port))
             .merge(("address", discover_address_or_exit(args.network.as_str()))),
     )
-    .mount("/", routes![configure, screenshot, sysinfo, rpc])
+    .mount("/", routes![configure, screenshot, sysinfo, rpc, verify_portal, get_portal_url])
 }
 
 #[allow(clippy::needless_pass_by_value)]
@@ -56,4 +90,33 @@ fn sysinfo() -> Json<SystemInformation> {
 #[post("/rpc", format = "application/json", data = "<command>")]
 fn rpc(command: Json<Command>) -> Result {
     command.run()
+}
+
+/// Verify if the portal URL matches the current Chromium startup page
+#[get("/verify-portal")]
+async fn verify_portal() -> String {
+    match verify_startup_page().await {
+        Ok(matches) => {
+            if matches {
+                "Portal URL matches Chromium startup page".to_string()
+            } else {
+                "Portal URL does not match Chromium startup page".to_string()
+            }
+        }
+        Err(e) => format!("Error verifying portal: {}", e),
+    }
+}
+
+/// Get the current portal URL for the hostname
+#[get("/portal-url")]
+async fn get_portal_url() -> String {
+    match digsigctl::portal::get_hostname() {
+        Ok(hostname) => {
+            match digsigctl::portal::fetch_portal_url(&hostname).await {
+                Ok(url) => url,
+                Err(e) => format!("Error fetching portal URL: {}", e),
+            }
+        }
+        Err(e) => format!("Error getting hostname: {}", e),
+    }
 }
