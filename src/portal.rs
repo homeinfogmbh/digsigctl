@@ -61,7 +61,7 @@ pub async fn verify_startup_page() -> Result<bool> {
         fs::create_dir_all("/home/digsig/.config/chromium/Default/").expect("error creating dir");
         fs::copy(
             "/usr/share/digsigctl/Preferences",
-            "/usr/home/digsig/.config/chromium/Default/Preferences",
+            "/home/digsig/.config/chromium/Default/Preferences",
         )
         .expect("error copying chromium default preferences");
     }
