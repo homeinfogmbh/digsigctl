@@ -12,6 +12,7 @@ use anyhow::Result;
 use rocket::serde::json::serde_json;
 use serde::Deserialize;
 use std::fs;
+use std::path::Path;
 use std::process::Command;
 
 #[derive(Debug, Deserialize)]
@@ -94,7 +95,8 @@ fn get_current_startup_url() -> Result<String> {
 pub async fn apply_portal_config_if_needed() -> Result<bool> {
     let hostname = get_hostname()?;
     let portal_url = fetch_portal_url(&hostname).await?;
-    if !fs::exists(".config/chromium/Default/Preferences") {
+    let is_present = Path::new(".config/chromium/Default/Preferences").exists();
+    if is_present == false {
         fs::create_dir_all(".config/chromium/Default/");
         fs::copy(
             "/usr/share/digsigctl/Preferences",
