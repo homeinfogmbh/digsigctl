@@ -94,11 +94,11 @@ fn get_current_startup_url() -> Result<String> {
 pub async fn apply_portal_config_if_needed() -> Result<bool> {
     let hostname = get_hostname()?;
     let portal_url = fetch_portal_url(&hostname).await?;
-    if !fs::exists(default_preferences_file()) {
+    if !fs::exists(".config/chromium/Default/Preferences") {
         fs::create_dir_all(".config/chromium/Default/");
         fs::copy(
             "/usr/share/digsigctl/Preferences",
-            default_preferences_file(),
+            ".config/chromium/Default/Preferences",
         )?;
     }
     // Get the current Chromium startup URL from preferences
