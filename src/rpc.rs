@@ -1,7 +1,7 @@
 mod beep;
 pub mod chromium;
 mod identify;
-mod operation_mode;
+pub(crate) mod operation_mode;
 mod reboot;
 mod result;
 

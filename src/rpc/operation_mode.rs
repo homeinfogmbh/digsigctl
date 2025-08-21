@@ -58,7 +58,7 @@ impl OperationMode {
     }
 }
 
-fn activate_exclusive(service: Option<&str>) -> bool {
+pub fn activate_exclusive(service: Option<&str>) -> bool {
     for conflicting_service in CONFLICTING_SERVICES {
         let _ = stop_and_disable(conflicting_service);
     }

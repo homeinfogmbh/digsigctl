@@ -5,7 +5,9 @@
 //! and verify if they match the current Chromium startup page.
 
 use crate::config::Config;
+use crate::constants::CHROMIUM_SERVICE;
 use crate::rpc::default_preferences_file;
+use crate::rpc::operation_mode::activate_exclusive;
 use anyhow::Result;
 use rocket::serde::json::serde_json;
 use serde::Deserialize;
@@ -100,6 +102,7 @@ pub async fn apply_portal_config_if_needed() -> Result<bool> {
     if portal_url != startup_url {
         let config = Config::new(portal_url);
         config.apply()?;
+        activate_exclusive(Some(CHROMIUM_SERVICE));
         Ok(true) // Configuration was applied
     } else {
         Ok(false) // No configuration needed
