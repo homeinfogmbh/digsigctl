@@ -56,13 +56,14 @@ pub async fn fetch_portal_url(hostname: &str) -> Result<String> {
 pub async fn verify_startup_page() -> Result<bool> {
     let hostname = get_hostname()?;
     let portal_url = fetch_portal_url(&hostname).await?;
-    let is_present = Path::new(".config/chromium/Default/Preferences").exists()?;
+    let is_present = Path::new(".config/chromium/Default/Preferences").exists();
     if is_present == false {
-        fs::create_dir_all(".config/chromium/Default/")?;
+        fs::create_dir_all(".config/chromium/Default/").expect("error creating dir");
         fs::copy(
             "/usr/share/digsigctl/Preferences",
             ".config/chromium/Default/Preferences",
-        )?;
+        )
+        .expect("error copying chromium default preferences");
     }
     // Get the current Chromium startup URL from preferences
     let startup_url = get_current_startup_url()?;
