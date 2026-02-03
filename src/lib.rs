@@ -14,7 +14,6 @@ mod sysinfo;
 mod systemctl;
 mod try_from_io;
 
-pub use crate::constants::CONFIGURATION_MODE;
 pub use crate::sysinfo::SystemInformation;
 pub use crate::systemctl::is_active;
 pub use config::{ChromiumPreferences, Config};
