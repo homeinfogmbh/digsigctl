@@ -7,12 +7,13 @@ use digsigctl::{
     discover_address_or_exit, take_screenshot, Command, Config, is_active,
     Result, ScreenshotResponse, SystemInformation, apply_portal_config_if_needed, verify_startup_page,
 };
-use digsigctl::constants::CONFIGURATION_MODE;
 use rocket::serde::json::Json;
 use rocket::{get, launch, post, routes, Build, Rocket};
 use std::thread;
 use subprocess::ExitStatus;
 use tokio::runtime::Runtime;
+
+const CONFIGURATION_MODE: &str = "hidslcfg.service";
 
 #[derive(Parser)]
 #[clap(about, author, version)]
