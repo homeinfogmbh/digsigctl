@@ -3,7 +3,7 @@
 //! This library exposes functions and datastructures as used
 //! by the programs `digsigctl` and `fix-chromium-preferences`.
 mod config;
-mod constants;
+pub mod constants;
 mod net;
 mod pacman;
 pub mod portal;
