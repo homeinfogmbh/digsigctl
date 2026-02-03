@@ -1,15 +1,16 @@
-//! Digital signage system controller.
+    //! Digital signage system controller.
 //!
 //! This program is intended to run on digital signage systems and act as an RPC server.
 
 use clap::Parser;
 use digsigctl::{
-    discover_address_or_exit, take_screenshot, Command, Config, Result, ScreenshotResponse,
-    SystemInformation, apply_portal_config_if_needed, verify_startup_page,
+    discover_address_or_exit, take_screenshot, Command, Config, CONFIGURATION_MODE, is_active,
+    Result, ScreenshotResponse, SystemInformation, apply_portal_config_if_needed, verify_startup_page,
 };
 use rocket::serde::json::Json;
 use rocket::{get, launch, post, routes, Build, Rocket};
 use std::thread;
+use subprocess::ExitStatus;
 use tokio::runtime::Runtime;
 
 #[derive(Parser)]
@@ -28,7 +29,19 @@ fn rocket() -> Rocket<Build> {
 
     // Run portal verification on startup in a separate thread
     // Only apply configuration if the portal URL doesn't match the current startup page
+    // Skip this if operation mode is CONFIGURATION_MODE
     thread::spawn(|| {
+        // Check if CONFIGURATION_MODE is active
+        let is_config_mode = match is_active(CONFIGURATION_MODE) {
+            Ok(ExitStatus::Exited(0)) => true,
+            _ => false,
+        };
+
+        if is_config_mode {
+            eprintln!("Skipping portal verification - system is in configuration mode");
+            return;
+        }
+
         let rt = Runtime::new().unwrap();
         rt.block_on(async {
             match verify_startup_page().await {

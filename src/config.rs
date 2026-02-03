@@ -1,4 +1,4 @@
-mod chromium_preferences;
+ mod chromium_preferences;
 mod error;
 
 pub use crate::config::chromium_preferences::ChromiumPreferences;
